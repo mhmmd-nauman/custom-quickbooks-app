@@ -1,7 +1,7 @@
 <?php
 
 require_once dirname(__FILE__) . '/config.php';
-
+require_once dirname(__FILE__) . '/lib/include.php';
 require_once dirname(__FILE__) . '/views/header.tpl.php';
 
 ?>
@@ -13,11 +13,15 @@ require_once dirname(__FILE__) . '/views/header.tpl.php';
 $CustomerService = new QuickBooks_IPP_Service_Customer();
 
 $Customer = new QuickBooks_IPP_Object_Customer();
+
+$array['Name']="Nauman";
+$array['Email']="mhmmd.nauman@gmail.com";
+
 $Customer->setTitle('Ms');
-$Customer->setGivenName('Shannon');
+$Customer->setGivenName($array['Name']);
 $Customer->setMiddleName('B');
 $Customer->setFamilyName('Palmer');
-$Customer->setDisplayName('Shannon B Palmer ' . mt_rand(0, 1000));
+$Customer->setDisplayName($array['Name'] . mt_rand(0, 1000));
 
 // Terms (e.g. Net 30, etc.)
 $Customer->setSalesTermRef(4);
@@ -48,12 +52,15 @@ $Customer->setBillAddr($BillAddr);
 
 // Email
 $PrimaryEmailAddr = new QuickBooks_IPP_Object_PrimaryEmailAddr();
-$PrimaryEmailAddr->setAddress('support@consolibyte.com');
+$PrimaryEmailAddr->setAddress($array['Email']);
 $Customer->setPrimaryEmailAddr($PrimaryEmailAddr);
 
 if ($resp = $CustomerService->add($Context, $realm, $Customer))
 {
 	print('Our new customer ID is: [' . $resp . '] (name "' . $Customer->getDisplayName() . '")');
+        $array['QB_ID'] = $resp;
+        $objCustomer =  new Customer();
+        $objCustomer->InsertCustomer($array);
 }
 else
 {

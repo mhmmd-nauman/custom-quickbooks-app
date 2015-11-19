@@ -28,11 +28,21 @@
 		}
 
 		</style>
+                <!-- Latest compiled and minified CSS -->
+                <link rel="stylesheet" href="views/bootstrap-3.3.5-dist/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
+                <!-- Optional theme -->
+                <link rel="stylesheet" href="views/bootstrap-3.3.5-dist/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+
+                <!-- Latest compiled and minified JavaScript -->
+                <script src="views/bootstrap-3.3.5-dist/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
 	</head>
 	<body>
-
-		<?php if ($quickbooks_is_connected): ?>
-			<ipp:blueDot></ipp:blueDot>
-		<?php endif; ?>
-
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 pullright">
+                        <?php if ($quickbooks_is_connected): ?>
+                                <ipp:blueDot></ipp:blueDot>
+                        <?php endif; ?>
+                    </div>
+                </div>

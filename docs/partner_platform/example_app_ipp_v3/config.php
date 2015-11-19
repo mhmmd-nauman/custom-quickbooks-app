@@ -35,18 +35,18 @@ $sandbox = true;     // When you're using development tokens
 //$sandbox = false;    // When you're using production tokens
 
 // This is the URL of your OAuth auth handler page
-$quickbooks_oauth_url = 'http://quickbooks.v3.com:8888/quickbooks-php/docs/partner_platform/example_app_ipp_v3/oauth.php';
+$quickbooks_oauth_url = 'http://takseeb.smallbusiness.info/quickbooks/docs/partner_platform/example_app_ipp_v3/oauth.php';
 
 // This is the URL to forward the user to after they have connected to IPP/IDS via OAuth
-$quickbooks_success_url = 'http://quickbooks.v3.com:8888/quickbooks-php/docs/partner_platform/example_app_ipp_v3/success.php';
+$quickbooks_success_url = 'http://takseeb.smallbusiness.info/quickbooks/docs/partner_platform/example_app_ipp_v3/success.php';
 
 // This is the menu URL script 
-$quickbooks_menu_url = 'http://quickbooks.v3.com:8888/quickbooks-php/docs/partner_platform/example_app_ipp_v3/menu.php';
+$quickbooks_menu_url = 'http://takseeb.smallbusiness.info/quickbooks/docs/partner_platform/example_app_ipp_v3/menu.php';
 
 // This is a database connection string that will be used to store the OAuth credentials 
 // $dsn = 'pgsql://username:password@hostname/database';
 // $dsn = 'mysql://username:password@hostname/database';
-$dsn = 'mysqli://root:root@localhost/example_app_ipp_v3';		
+$dsn = 'mysqli://ezb2599b_db:12qwaszx@localhost/ezb2599b_qb';		
 
 // You should set this to an encryption key specific to your app
 $encryption_key = 'bcde1234';
