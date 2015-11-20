@@ -51,7 +51,7 @@ while (false !== ($file = readdir($dh)))
 
 <div>
 	<h1>
-		Welcome to the QuickBooks PHP DevKit - IPP Intuit Anywhere Demo App!
+		Welcome to the QuickBooks Custom Application
 	</h1>
 
 	<p>
@@ -82,9 +82,9 @@ while (false !== ($file = readdir($dh)))
 					Country: <?php print($quickbooks_CompanyInfo->getCountry()); ?>
 				</i>
 			</div>
-
+                        <!--
 			<h2>Example QuickBooks Stuff</h2>
-
+                        
 			<table>
 				<?php foreach ($examples as $file => $title): ?>
 					<tr>
@@ -133,7 +133,7 @@ while (false !== ($file = readdir($dh)))
 					</td>
 				</tr>
 			</table>
-
+                        -->
 		<?php else: ?>
 			<div style="border: 2px solid red; text-align: center; padding: 8px; color: red;">
 				<b>NOT</b> CONNECTED!<br>

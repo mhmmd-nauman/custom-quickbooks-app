@@ -6,7 +6,31 @@ require_once dirname(__FILE__) . '/views/header.tpl.php';
 
 ?>
 
-<pre>
+<div class="row">
+    <div class="col-md-12">
+        <h1>Payments from QB Live Application</h1>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr>
+    </div>
+    
+</div>
+<table class="table-striped table">
+    <tr>
+        <td>
+            RefNum
+        </td>
+        <td>
+            Amount
+        </td>
+        
+        <td>
+             Actions
+        </td>
+    </tr>
 
 <?php
 
@@ -18,9 +42,25 @@ $list = $PaymentService->query($Context, $realm, "SELECT * FROM Payment STARTPOS
 
 foreach ($list as $Payment)
 {
-	print('Payment # ' . $Payment->getPaymentRefNum() . ' has a total of $' . $Payment->getTotalAmt() . "\n");
-	print('   Internal Id: ' . $Payment->getId() . "\n");
-	print("\n");
+	//print('Payment # ' . $Payment->getPaymentRefNum() . ' has a total of $' . $Payment->getTotalAmt() . "\n");
+	//print('   Internal Id: ' . $Payment->getId() . "\n");
+	//print("\n");
+    
+?>
+    <tr>
+        <td>
+             <?php echo $Payment->getPaymentRefNum();?>
+        </td>
+        <td>
+             $<?php echo $Payment->getTotalAmt();?>
+        </td>
+        
+        
+        <td class="col-md-2 pull-right">
+             <a class="btn btn-success btn-sm" href="#">Edit</a>&nbsp;<a class="btn btn-success btn-sm" href="#">Delete</a>
+        </td>
+    </tr>
+    <?php
 }
 
 /*
@@ -34,8 +74,7 @@ print("\n\n\n\n");
 */
 
 ?>
-
-</pre>
+</table>
 
 <?php
 

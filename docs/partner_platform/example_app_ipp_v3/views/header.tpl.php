@@ -46,3 +46,14 @@
                         <?php endif; ?>
                     </div>
                 </div>
+                <div class="row">
+                    <ul class = "nav navbar-nav">
+                       <li class = "active"><a href = "index.php">Home</a></li>
+                       <li><a href = "example_customer_query.php">Customers</a></li>
+                       <li><a href = "example_invoice_query.php">Invoices</a></li>
+                       <li><a href = "example_invoice_w_lines_query.php">Invoices with Lines</a></li>
+                       <li><a href = "example_payment_query.php">Payments</a></li>
+                       <li><a href = "example_items_query.php">Items</a></li>
+                       
+                    </ul>
+                 </div>

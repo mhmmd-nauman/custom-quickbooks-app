@@ -6,22 +6,37 @@ require_once dirname(__FILE__) . '/views/header.tpl.php';
 
 ?>
 <div class="row">
-    <div class="col-md-2">
-        Internal ID
+    <div class="col-md-12">
+        <h1>Invoices from QB Live Application</h1>
     </div>
-    <div class="col-md-2">
-        Invoice#
+    
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr>
     </div>
-    <div class="col-md-2">
-        Amount
-    </div>
-    <div class="col-md-3">
-        Details
-    </div>
-    <div class="col-md-2">
-        Actions
-    </div>
-    </div>
+    
+</div>
+<table class="table-striped table">
+    <tr>
+        <td>
+            Internal ID
+        </td>
+        <td>
+            Invoice#
+        </td>
+        <td>
+            Amount
+        </td>
+        <td>
+            Details
+        </td>
+        <td>
+             Actions
+        </td>
+    </tr>
+
+
 <?php
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 
@@ -33,26 +48,28 @@ $invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice STAR
 foreach ($invoices as $Invoice)
 {
     ?>
-    <div class="row">
-        <div class="col-md-2">
-            <?php echo $Invoice->getId();?>
-        </div>
-        <div class="col-md-2">
-            <?php echo $Invoice->getDocNumber();?>
-        </div>
-        <div class="col-md-2">
-            <?php echo $Invoice->getTotalAmt();?>
-        </div>
-        <div class="col-md-3">
+    <tr>
+        <td>
+             <?php echo $Invoice->getId();?>
+        </td>
+        <td>
+             <?php echo $Invoice->getDocNumber();?>
+        </td>
+        <td>
+            $<?php echo $Invoice->getTotalAmt();?>
+        </td>
+        <td>
             <?php echo $Invoice->getLine(0)->getDescription();?>
-        </div>
-        <div class="col-md-2">
-            <a class="btn btn-success btn-sm" href="#">Edit</a>&nbsp;<a class="btn btn-success btn-sm" href="#">Send Email</a>
-        </div>
-    </div>
+        </td>
+        <td>
+             <a class="btn btn-success btn-sm" href="#">Edit</a>&nbsp;<a class="btn btn-success btn-sm" href="#">Send Email</a>
+        </td>
+    </tr>
+    
 <?php 
 }
 ?>
+    </table>
 <?php
 //print('Invoice # ' . $Invoice->getDocNumber() . ' has a total of $' . $Invoice->getTotalAmt() . "\n");
 //print('    First line item: ' . $Invoice->getLine(0)->getDescription() . "\n");

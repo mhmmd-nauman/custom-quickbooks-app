@@ -6,7 +6,33 @@ require_once dirname(__FILE__) . '/views/header.tpl.php';
 
 ?>
 
-<pre>
+<div class="row">
+    <div class="col-md-12">
+        <h1>Invoices with lines from QB Live Application</h1>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr>
+    </div>
+    
+</div>
+<table class="table-striped table">
+    <tr>
+        <td>
+            Invoice#
+        </td>
+        <td>
+            Amount
+        </td>
+        <td>
+            Details
+        </td>
+        <td>
+             Actions
+        </td>
+    </tr>
 
 <?php
 
@@ -19,26 +45,48 @@ $invoices = $InvoiceService->query($Context, $realm, "SELECT *, Line.* FROM Invo
 
 foreach ($invoices as $Invoice)
 {
-	$num_lines = $Invoice->countLine(); 		// How many line items are there?
-	for ($i = 0; $i < $num_lines; $i++)
-	{
-		$Line = $Invoice->getLine(0);
-		
-		// Let's find out what item this uses
-		if ($Line->getDetailType() == 'SalesItemLineDetail')
-		{
-			$Detail = $Line->getSalesItemLineDetail();
+?>
+    <tr>
+        
+        <td>
+             <?php echo $Invoice->getDocNumber();?>
+        </td>
+        <td>
+            $<?php echo $Invoice->getTotalAmt();?>
+        </td>
+        <td>
+            <?php echo $Invoice->getLine(0)->getDescription();
+            echo "\n";
+            $num_lines = $Invoice->countLine(); 		// How many line items are there?
+            for ($i = 0; $i < $num_lines; $i++)
+            {
+                    $Line = $Invoice->getLine(0);
 
-			$item_id = $Detail->getItemRef();
+                    // Let's find out what item this uses
+                    if ($Line->getDetailType() == 'SalesItemLineDetail')
+                    {
+                            $Detail = $Line->getSalesItemLineDetail();
 
-			print('Item id is: ' . $item_id . "\n");
+                            $item_id = $Detail->getItemRef();
 
-			$items = $ItemService->query($Context, $realm, "SELECT * FROM Item WHERE Id = '" . QuickBooks_IPP_IDS::usableIDType($item_id) . "' ");
-			print('   That item is named: ' . $items[0]->getName() . "\n");
-		}
-	}
+                            print('Item id is: ' . $item_id . "\n");
 
-	print("\n\n\n");
+                            $items = $ItemService->query($Context, $realm, "SELECT * FROM Item WHERE Id = '" . QuickBooks_IPP_IDS::usableIDType($item_id) . "' ");
+                            print('   That item is named: ' . $items[0]->getName() . "\n");
+                    }
+            }
+            
+            ?>
+            
+        </td>
+        <td>
+             <a class="btn btn-success btn-sm" href="#">Edit</a>&nbsp;<a class="btn btn-success btn-sm" href="#">Send Email</a>
+        </td>
+    </tr>
+    <?php
+    
+
+	//print("\n\n\n");
 }
 
 /*
@@ -50,8 +98,7 @@ print("\n\n\n\n");
 */
 
 ?>
-
-</pre>
+</table>
 
 <?php
 

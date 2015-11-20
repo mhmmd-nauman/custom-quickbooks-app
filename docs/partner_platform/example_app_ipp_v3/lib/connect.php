@@ -13,8 +13,8 @@
 		"type" => "MySQLDatabase",
 		"server" => "localhost",
 		"username" => str_replace('"',"","ezb2599b_sb"),
-		"password" => str_replace('"',"",""),
-		"database" => str_replace('"',"", "")
+		"password" => str_replace('"',"","12qwaszx"),
+		"database" => str_replace('"',"", "ezb2599b_qb")
 	);
 	}
 	

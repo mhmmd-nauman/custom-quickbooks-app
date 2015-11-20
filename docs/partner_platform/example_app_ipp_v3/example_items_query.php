@@ -6,7 +6,31 @@ require_once dirname(__FILE__) . '/views/header.tpl.php';
 
 ?>
 
-<pre>
+<div class="row">
+    <div class="col-md-12">
+        <h1>Items from QB Live Application</h1>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <hr>
+    </div>
+    
+</div>
+<table class="table-striped table">
+    <tr>
+        <td>
+            ID
+        </td>
+        <td>
+            Name
+        </td>
+        
+        <td>
+             Actions
+        </td>
+    </tr>
 
 <?php
 
@@ -16,9 +40,23 @@ $items = $ItemService->query($Context, $realm, "SELECT * FROM Item WHERE Metadat
 
 foreach ($items as $Item)
 {
-	//print_r($Item);
+	?>
+     <tr>
+        <td>
+             <?php echo $Item->getId();?>
+        </td>
+        <td>
+             <?php echo $Item->getName();?>
+        </td>
+        
+        
+        <td class="col-md-2 pull-right">
+             <a class="btn btn-success btn-sm" href="#">Edit</a>&nbsp;<a class="btn btn-success btn-sm" href="#">Delete</a>
+        </td>
+    </tr>
+    <?php
 
-	print('Item Id=' . $Item->getId() . ' is named: ' . $Item->getName() . '<br>');
+	//print('Item Id=' . $Item->getId() . ' is named: ' . $Item->getName() . '<br>');
 }
 
 /*
@@ -31,7 +69,7 @@ print("\n\n\n\n");
 
 ?>
 
-</pre>
+</table>
 
 <?php
 
