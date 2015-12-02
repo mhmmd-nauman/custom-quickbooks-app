@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . '/config.php';
 
 require_once dirname(__FILE__) . '/views/header.tpl.php';
 
-
+/*
 $conn = new mysqli("localhost","root","","ezb2599b_qb");
 // Check connection
 if ($conn->connect_error) {
@@ -31,7 +31,7 @@ if(isset($_REQUEST['send_email'])){
 	// Mail it
 	mail($_REQUEST['to'], $_REQUEST['subject'], $_REQUEST['message'], $headers);
 }
-
+*/
 ?>
 <script type="text/javascript">
 tinymce.init({
@@ -90,7 +90,144 @@ tinymce.init({
     <hr>
   </div>
 </div>
-<table class="table-striped table">
+
+
+<div class="row">
+  <div class="col-md-12">
+      <table class="table table-striped table-bordered table-responsive" style=" font-size: 10px;">
+  <tr>
+      <td> Client </td>
+    <td> Email Name </td>
+    <td> Invoice# </td>
+    <td> Amount Owing </td>
+    <td> Ship Date </td>
+    <td> Print Supplier </td>
+    <td> Blank Garment Supplier </td>
+    <td> Shipping Address </td>
+    <td> Phone # </td>
+    <td> Shipping Method </td>
+    <td> Tracking Number / Date </td>
+    <td> Follow up ? </td>
+    <td> BG Email </td>
+    <td> Send Print Instruction </td>
+    <td> View Files </td>
+  </tr>
+      
+<?php 
+$InvoiceService = new QuickBooks_IPP_Service_Invoice();
+$CustomerService = new QuickBooks_IPP_Service_Customer();
+$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice STARTPOSITION 1 MAXRESULTS 25");
+//echo "<pre>";
+//print_r($invoices);
+//echo "</pre>";
+$blank_garment_supplier=array("Sanmar","Technosport");
+$print_supplier_array=array("SuperGraphics","Double L","Top Notch","True Screen");
+$shipement_method_array=array("UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
+        
+foreach ($invoices as $Invoice)
+{
+   $customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'");
+?>
+  <tr>
+    <td><?php 
+            //  echo $id= $Invoice->getCustomerRef();
+            echo $name= $Invoice->getCustomerRef_name();
+        ?>
+    </td>
+    <td><?php 
+            $addr=$Invoice->getBillEmail(0);
+            if(isset($addr)) echo $Invoice->getBillEmail(0)->getAddress();
+            else {
+                foreach ($customer as $customers)
+                        {
+                        echo $customers->getPrimaryEmailAddr(0)->getAddress();
+                        }
+            }
+?>
+    </td>    
+    <td><?php echo $Invoice->getDocNumber();?></td>
+    <td>$<?php echo $Invoice->getTotalAmt();?></td>
+    <td><?php echo $Invoice->getShipDate();?></td>
+    <td><?php
+        $BillService = new QuickBooks_IPP_Service_Bill();
+        $bills = $BillService->query($Context, $realm, "SELECT * FROM Bill where SalesTermRef='".QuickBooks_IPP_IDS::usableIDType($Invoice->getSalesTermRef())."'"); ?>          
+            <select name="print_supplier">
+            <?php  foreach ($bills as $bill) {
+            echo "<option value=".$bill->getVendorRef_name().">".$bill->getVendorRef_name()."</option>";
+            }
+            ?>
+            </select>
+                <select name="print_supplier2">
+                <?php
+                foreach ($print_supplier_array as $supplier)
+                {
+                echo "<option value='".$supplier."'>".$supplier."</option>";
+                }
+                ?>
+                </select>
+    </td>
+    <td>
+        <select name="blank_garment_supplier">
+        <?php
+        foreach ($blank_garment_supplier as $supplier)
+	{
+        echo "<option value='".$supplier."'>".$supplier."</option>";
+        }
+        ?>
+        </select>
+    </td>
+    <td><?php    
+            foreach ($customer as $customers)
+                {
+                $checkinprimary = $customers->getBillAddr(0);
+                if ($checkinprimary) {
+                     $checkinshipping = $Invoice->getShipAddr(0);
+                            if ($checkinshipping) {
+                                echo $Invoice->getShipAddr(0)->getLine1();?><?php echo $Invoice->getShipAddr(0)->getCity();?><?php echo $Invoice->getShipAddr(0)->getPostalCode();
+                            }
+                            else {
+                                echo $customers->getBillAddr(0)->getLine1()." , " .$customers->getBillAddr(0)->getCountrySubDivisionCode()." , " .$customers->getBillAddr(0)->getPostalCode();
+                            }
+                } 
+                }
+          ?>
+    </td>
+    <td> 
+    <?php
+    foreach ($customer as $customers)
+        {
+        echo $customers->getPrimaryPhone(0)->getFreeFormNumber();
+        }
+    ?>        
+    </td>
+    <td><?php             echo $Invoice->getShipMethodRef_name(); ?>
+        <select name="blank_garment_supplier">
+        <?php
+        foreach ($shipement_method_array as $value)
+	{
+        echo "<option value='".$value."'>".$value."</option>";
+        }
+        ?>
+        </select>
+    </td>
+    <td> <?php echo $Invoice->getDocNumber()." /<br>".$Invoice->getTxnDate(); ?><input type="text" name="tract_num" value=""></td>
+    <td> <a class="btn btn-success btn-sm" href=?follow="<?php echo $Invoice->getDocNumber();?>">Follow up ?</a></td>
+    <td> <a class="btn btn-danger btn-sm" href=?bg="<?php echo $Invoice->getDocNumber();     ?>">BG Email</a> </td>
+    <td> <a class="btn btn-warning btn-sm" href=?print="<?php echo $Invoice->getDocNumber(); ?>">Print</a> </td>
+    <td> <a class="btn btn-info btn-sm" href=?files="<?php echo $Invoice->getDocNumber();    ?>">View Files</a> </td>
+  </tr>
+  <?php 
+}
+
+?>
+</table>  
+  </div>
+</div><div class="row">
+  <div class="col-md-12">
+    <hr>
+  </div>
+</div>
+<table class="table table-striped table-bordered table-responsive">
   <tr>
     <td> Internal ID </td>
     <td> Invoice# </td>
@@ -106,22 +243,25 @@ $invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice STAR
 
 # perform the local query....
 	$sql = "Select * from quickbooks_invoice";
-	$result = $conn->query($sql);
+	//$result = $conn->query($sql);
 	
-	$row = $result->fetch_assoc();
-	
+	//$row = $result->fetch_assoc();
+//echo "<pre>";
+//print_r($invoices);
+//echo "</pre>";
+//	
 foreach ($invoices as $Invoice)
 {	
-	if($Invoice->getDocNumber() != $row['invoice_num']){
-		$insert_sql = "INSERT INTO quickbooks_invoice (invoice_num,invoice_amount,invoice_status) VALUES('".$Invoice->getDocNumber()."','".$Invoice->getTotalAmt()."','0')";
-		$conn->query($insert_sql);
+	if($Invoice->getDocNumber() ){
+		//$insert_sql = "INSERT INTO quickbooks_invoice (invoice_num,invoice_amount,invoice_status) VALUES('".$Invoice->getDocNumber()."','".$Invoice->getTotalAmt()."','0')";
+		//$conn->query($insert_sql);
 	}
 
 ?>
   <tr>
     <td><?php echo $Invoice->getId();?></td>
     <td><?php echo $Invoice->getDocNumber();?></td>
-    <td> $<?php echo $Invoice->getTotalAmt();?></td>
+    <td>$<?php echo $Invoice->getTotalAmt();?></td>
     <td><?php echo $Invoice->getLine(0)->getDescription();?></td>
     <td><a class="btn btn-success btn-sm" href="#">Edit</a>&nbsp;<a class="btn btn-success btn-sm" id="send_email" href="javascript:void(0);">Send Email</a>
     <a class="btn btn-success btn-sm" href="<?php echo $actual_link.'?invoice='.$Invoice->getDocNumber().'';?>">X</a>
