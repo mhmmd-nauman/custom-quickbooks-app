@@ -11,6 +11,7 @@
       <!-- Bootstrap -->
       <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" 
          rel = "stylesheet">
+<link rel="stylesheet" href="css/popup.css" />
       
       <!-- HTML5 shim and Respond.js for IE8 support of HTML5 
          elements and media queries -->
@@ -51,8 +52,8 @@
     <hr>
   </div>
 </div>
-
-
+<a href="http://www.wikipedia.org" class="default_popup2">Default External Site</a>
+	
 <div class="row">
   <div class="col-md-12">
       <table class="table table-striped table-bordered table-responsive" style=" font-size: 10px;">
@@ -60,7 +61,7 @@
       <td style=" width: 10%;"> Client Name/Email </td>
     <td> Invoice# /<br>Amount Owing /<br>Ship Date </td>
     
-    <td> Print Supplier </td>
+    <td style=" width: 10%;"> Print Supplier </td>
     <td> Blank Garment Supplier </td>
     <td> Shipping Address </td>
     <td style=" width: 7%;"> Phone # </td>
@@ -71,9 +72,8 @@
     <td> Send Print Instruction </td>
     <td> View Files </td>
   </tr>
-      
   <tr>
-    <td>Weiskopf Consulting / Consulting@intuit.com </td>    
+    <td>name / Consulting@intuit.com </td>    
     <td>1010</td>
     
     <td>          
@@ -110,7 +110,6 @@
     <td> <a class="btn btn-warning btn-sm" href=?print="1010">Print</a> </td>
     <td> <a class="btn btn-info btn-sm" href=?files="1010">View Files</a> </td>
   </tr>
-   
   </table>  
   </div>
 </div><div class="row">
