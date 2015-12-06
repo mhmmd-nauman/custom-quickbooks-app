@@ -53,8 +53,11 @@ require_once dirname(__FILE__) . '/config.php';
 </div>
 
 <div class="row">
-  <div class="col-md-12">
-    <h1>Invoice Details</h1>
+    <div class="col-md-4">
+      <h1>Invoice Details</h1>
+    </div>
+    <div class="col-md-6 pull-right" id="ajax_wait" align="center" style=" display:none;font-weight:bold; font-size:18px; color:#CCCCCC; border: solid #000 1px;">Please Wait...</div>
+    </div>
   </div>
 </div>
 <div class="row">
@@ -86,17 +89,32 @@ $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
 $invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice STARTPOSITION 1 MAXRESULTS 25");
 //echo "<pre>";
-//print_r($invoices);
+//print_r($invoices[0]);
 //echo "</pre>";
+//exit;
 $print_supplier_array=array("SuperGraphics","Double L","Top Notch","True Screen");
-$shipement_method_array=array("UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
+$shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
         
 foreach ($invoices as $Invoice) {
-   $customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'"); ?>
+   $Customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'"); 
+   //$delivery_method = $customer->getCustomerPreferredDeliveryMethod();
+   //echo "<pre>";
+   //print_r((array)$Customer[0]);
+   //echo "</pre>";
+   //$customer->PrimaryPhone->FreeFormNumber;
+   //$num = $Customer[0]->getXPath('//Customer/PrimaryPhone/FreeFormNumber'); 
+   //print('Phone #: ' . $num);
+   $invoice_id = $Invoice->getId();
+   $invoice_id = str_replace("-", "", $invoice_id);
+   $invoice_id = str_replace("{", "", $invoice_id);
+   $invoice_id = str_replace("}", "", $invoice_id);
+   $PreferredDeliveryMethod= $Customer[0]->getXPath('//Customer/PreferredDeliveryMethod');
+   //exit;
+   ?>
 
 <tr>
     <td><?php 
-           //    $id= $Invoice->getCustomerRef();
+            //echo    $id= $Invoice->getCustomerRef();
             echo $name= $Invoice->getCustomerRef_name();
             echo "/";
             $addr=$Invoice->getBillEmail(0);
@@ -164,8 +182,16 @@ foreach ($invoices as $Invoice) {
             }
         ?>        
     </td>
-    <td>        <select name="blank_garment_supplier" class="small-drop-down">
-        <option value='UPS'>UPS</option><option value='CANADA POST'>CANADA POST</option><option value='SPOTSHUB'>SPOTSHUB</option><option value='A COASTAL REIGN REPRESENTATIVE'>A COASTAL REIGN REPRESENTATIVE</option>        </select>
+    <td>
+        <select name="shipping_method" class="small-drop-down" onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);">
+        <?php 
+        //
+        foreach($shipement_method_array as $shippingmethod){
+        ?>
+            <option value='<?php echo $shippingmethod;?>' <?php if($PreferredDeliveryMethod == $shippingmethod)echo"selected";?>><?php echo $shippingmethod;?></option>
+        <?php }?>
+                
+        </select>
     </td>
     <td> <?php echo $Invoice->getDocNumber(); ?>/<input class="small-date-box tract_date" type="text" name="tract_date" id="tract_date" value="<?php echo date("m/d/Y",  strtotime($Invoice->getTxnDate()));?>"></td>
     <td> <a title="Follow Up Email" class="btn btn-success btn-sm invoice-email"  href="example_invoice_email.php?follow=<?php echo $Invoice->getDocNumber();?>">Follow Up</a></td>
@@ -199,5 +225,20 @@ $('<iframe id="some-dialog" class="window-Frame" src='+linkt+' />').dialog({
 		title:setTitle,
                 position: { my: "top", at: "top", of: window  }
 	}).width(SetWidth-20).height(SetHeight-20);
+}
+function UpdateInvoiceData(InvoiceId,FieldName,Data){ 
+    var url = "ajax_invoice_add.php?InvoiceId="+InvoiceId+"&FieldName="+FieldName+"&Data="+Data;
+    //alert("");
+    //$('#main_body').hide();
+    $('#ajax_wait').show();
+    $.ajax({
+    url: url,
+    success: function(data) {
+        alert(data);
+        $('#ajax_wait').hide();
+        //$('#main_body').html(data);
+        //$('#main_body').show();     
+     }
+    });
 }
 </script>
