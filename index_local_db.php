@@ -1,5 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/config.php';
+require_once dirname(__FILE__) . '/lib/include.php';
+$objInvoice = new Invoice();
 ?>
 <html>
 <head>
@@ -35,7 +37,7 @@ require_once dirname(__FILE__) . '/config.php';
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script>
     $(function() {
-      $( ".tract_date" ).datepicker();
+      //$( ".tract_date" ).datepicker();
     });
     </script>
    </head>
@@ -80,6 +82,7 @@ require_once dirname(__FILE__) . '/config.php';
     <td style=" width: 7%;"> Phone # </td>
     <td> Shipping Method </td>
     <td> Tracking Number/Date </td>
+    <td> Action</td>
     <td> Follow up ? </td>
     <td> BG Email </td>
     <td> Send Print Instruction </td>
@@ -88,67 +91,69 @@ require_once dirname(__FILE__) . '/config.php';
 <?php 
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice  ORDERBY TxnDate DESC  STARTPOSITION 1 MAXRESULTS 10 ");
+//$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice  ORDERBY TxnDate DESC  STARTPOSITION 1 MAXRESULTS 10 ");
 //where 1 ORDERBY ShipDate DESC
 //echo "<pre>";
 //print_r($invoices[0]);
 //echo "</pre>";
 //exit;
+$invoices = $objInvoice->GetAllInvoices("Visible = 1 order by ShipDate desc",array("*"));
 $print_supplier_array=array("SuperGraphics","Double L","Top Notch","True Screen");
 $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
+$garment_supplier_array=array("Sanmar","Technosport");
         
 foreach ($invoices as $Invoice) {
-   $Customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'"); 
+   //$Customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice['CustomerRef'])."'"); 
    //$delivery_method = $customer->getCustomerPreferredDeliveryMethod();
    //echo "<pre>";
-   //print_r((array)$Invoice);
+   //print_r((array)$Invoice);ALTER TABLE `invoices` ADD `CustomerPreferredDeliveryMethod` VARCHAR(50) NULL ;
    //echo "</pre>";
    //exit;
    //$customer->PrimaryPhone->FreeFormNumber;
    //$num = $Customer[0]->getXPath('//Customer/PrimaryPhone/FreeFormNumber'); 
    //print('Phone #: ' . $num);
-   $invoice_id = $Invoice->getId();
+   $invoice_id = $Invoice['Id'];
    $invoice_id = str_replace("-", "", $invoice_id);
    $invoice_id = str_replace("{", "", $invoice_id);
    $invoice_id = str_replace("}", "", $invoice_id);
+   /*
    if(is_object($Customer[0])){
     $PreferredDeliveryMethod= $Customer[0]->getXPath('//Customer/PreferredDeliveryMethod');
    }
+    * 
+    */
    //exit;
    ?>
 <script>
     $(function() {
       $( "#ship_date<?php echo $invoice_id;?>" ).datepicker();
+      $( "#tract_date<?php echo $invoice_id;?>" ).datepicker();
+      
     });
     </script>
 <tr>
     <td><?php 
             //echo    $id= $Invoice->getCustomerRef();
-            echo $name= $Invoice->getCustomerRef_name();
+            echo $name= $Invoice['CustomerRef_name'];
             //echo "/";
-            $addr=$Invoice->getBillEmail(0);
-            if(isset($addr)) $email = $Invoice->getBillEmail(0)->getAddress();
-            else {
-                if(is_object($Customer[0])){
-                      $email=$Customer[0]->getPrimaryEmailAddr(0)->getAddress();
-                     
-                }
-            }
+            $email=$Invoice['BillEmail'];
+            
             if($email){
                 ?>
-        <input  onblur="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="mid-text-box" type="text" name="email" value="<?php echo $email;?>">
+        <input  onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="mid-text-box" type="text" name="email" value="<?php echo $email;?>">
                <?php
             }
         ?>
     </td>    
     <td>    
-        <?php echo $Invoice->getDocNumber();?> /
-        $<?php echo $Invoice->getTotalAmt();?> /
+        <?php echo $Invoice['DocNumber'];?> /
+        $<?php echo $Invoice['TotalAmt'];?> /<br>
         <?php 
-        $ship_date_value = date("m/d/Y",  strtotime($Invoice->getShipDate()));
-        $ship_date=$Invoice->getShipDate();
-        if(empty($ship_date)){ 
-            $ship_date_value = "";
+        $ship_date=$Invoice['ShipDate'];
+        $ship_date_value="";
+        if($ship_date!="0000-00-00"){
+            $ship_date_value = date("m/d/Y",  strtotime($ship_date));
+            //$ship_date_value = "";
         }?>
         <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box" type="text" name="ship_date" id="ship_date<?php echo $invoice_id;?>" value="<?php echo $ship_date_value ;?>">
     </td>
@@ -156,52 +161,51 @@ foreach ($invoices as $Invoice) {
     <td>    
     <?php
         $BillService = new QuickBooks_IPP_Service_Bill();
-        $bills = $BillService->query($Context, $realm, "SELECT * FROM Bill where SalesTermRef='".QuickBooks_IPP_IDS::usableIDType($Invoice->getSalesTermRef())."'"); ?>          
-            <select name="print_supplier" class="big-drop-down">
-            <?php  foreach ($bills as $bill) {
-            echo "<option value=".$bill->getVendorRef_name().">".$bill->getVendorRef_name()."</option>";
-            }
+        $bills = $BillService->query($Context, $realm, "SELECT * FROM Bill where SalesTermRef='".QuickBooks_IPP_IDS::usableIDType($Invoice['SalesTermRef'])."'"); 
+        //echo "<pre>";
+        //print_r($bills);
+        //echo "</pre>";
+        //exit;
+        ?>          
+           
+        <select onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" name="print_supplier" class="big-drop-down">
+            <?php  foreach ($bills as $bill) {?>
+            <option value="<?php echo $bill->getId();?>" <?php if($bill->getId() == $Invoice['PrintSupplier'])echo"selected";?>><?php echo $bill->getVendorRef_name();?></option>
+            
+               <?php }
             ?>
             </select>
-                <select name="print_supplier2" class="small-drop-down">
-                <?php
-                foreach ($print_supplier_array as $supplier)
-                {
-                echo "<option value='".$supplier."'>".$supplier."</option>";
-                }
-                ?>
+                <select onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" name="PrintSupplier2" class="small-drop-down">
+                <?php   foreach ($print_supplier_array as $supplier)    {   ?>
+                    <option value="<?php echo $supplier;?>" <?php if($supplier == $Invoice['PrintSupplier2'])echo"selected";?>><?php echo $supplier;?></option>
+                <?php        }   ?>
                 </select>    
     </td>
     <td>
-        <select name="blank_garment_supplier" class="small-drop-down">
-        <option value='Sanmar'>Sanmar</option>
-        <option value='Technosport'>Technosport</option>        
-        </select>
+         <select onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" name="blank_garment_supplier" class="small-drop-down">
+            <?php   foreach ($garment_supplier_array as $supplier)  { ?>
+                <option value="<?php echo $supplier;?>" <?php if($supplier == $Invoice['blank_garment_supplier'])echo"selected";?>><?php echo $supplier;?></option>
+            <?php  }   ?>
+        </select>    
     </td>
     <td>
         <?php    
-            if(is_object($Customer[0])){
-                $customers = $Customer[0];
-                $checkinprimary = $customers->getBillAddr(0);
-                if ($checkinprimary) {
-                     $checkinshipping = $Invoice->getShipAddr(0);
-                            if ($checkinshipping) {
-                                echo $Invoice->getShipAddr(0)->getLine1();?><?php echo $Invoice->getShipAddr(0)->getCity();?><?php echo $Invoice->getShipAddr(0)->getPostalCode();
-                            }
-                            else {
-                                echo $customers->getBillAddr(0)->getLine1()." , " .$customers->getBillAddr(0)->getCountrySubDivisionCode()." , " .$customers->getBillAddr(0)->getPostalCode();
-                            }
-                } 
-            }   
+            //if(is_object($Customer[0])){
+             //   $customers = $Customer[0];
+              //  $checkinprimary = $customers->getBillAddr(0);
+                 
+            //}   
           ?>
+        <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box" type="text" name="ship_address" value="<?php echo $Invoice['ship_address'] ;?>"> 
     </td>
     <td> 
         <?php
         
-            if(is_object($Customer[0])){
-                echo $customers->getPrimaryPhone(0)->getFreeFormNumber();
-            }
+            //if(is_object($Customer[0])){
+                //echo $customers->getPrimaryPhone(0)->getFreeFormNumber();
+            //}
         ?>        
+        <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box" type="text" name="PhoneNo" value="<?php echo $Invoice['PhoneNo'] ;?>"> 
     </td>
     <td>
         <select name="shipping_method" class="small-drop-down" onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);">
@@ -209,16 +213,19 @@ foreach ($invoices as $Invoice) {
         //
         foreach($shipement_method_array as $shippingmethod){
         ?>
-            <option value='<?php echo $shippingmethod;?>' <?php if($PreferredDeliveryMethod == $shippingmethod)echo"selected";?>><?php echo $shippingmethod;?></option>
+            <option value='<?php echo $shippingmethod;?>' <?php if($Invoice['CustomerPreferredDeliveryMethod'] == $shippingmethod)echo"selected";?>><?php echo $shippingmethod;?></option>
         <?php }?>
                 
         </select>
     </td>
-    <td> <?php echo $Invoice->getDocNumber(); ?>/<input class="small-date-box tract_date" type="text" name="tract_date" id="tract_date" value="<?php echo date("m/d/Y",  strtotime($Invoice->getTxnDate()));?>"></td>
-    <td> <a title="Follow Up Email" class="btn btn-success btn-sm invoice-email"  href="example_invoice_email.php?follow=<?php echo $Invoice->getDocNumber();?>">Follow Up</a></td>
-    <td> <a title="BG Email" class="btn btn-danger btn-sm invoice-email"  href="example_invoice_email.php?bg=<?php echo $Invoice->getDocNumber();?>">BG Email</a> </td>
-    <td> <a title="Print Email" class="btn btn-warning btn-sm invoice-email"  href="example_invoice_email.php?printing=<?php echo $Invoice->getDocNumber();?>">Print</a> </td>
-    <td> <a title="View Files Email" class="btn btn-info btn-sm invoice-email" href="example_invoice_email.php?shipping=<?php echo $Invoice->getDocNumber();?>">View Files</a> </td>
+    <td> <?php //echo $Invoice['Number']; ?>/<input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tract_date" type="text" name="tract_date" id="tract_date<?php echo $invoice_id;?>" value="<?php echo date("m/d/Y",  strtotime($Invoice['TxnDate']));?>"></td>
+    <td> 
+        <button onclick="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" type = "button" name="hide_button" id="hide_button" class = "btn btn-success btn-sm">Hide</button>
+        </td>
+    <td> <a title="Follow Up Email" class="btn btn-success btn-sm invoice-email"  href="example_invoice_email.php?follow=<?php echo $Invoice['DocNumber'];?>">Follow Up</a></td>
+    <td> <a title="BG Email" class="btn btn-danger btn-sm invoice-email"  href="example_invoice_email.php?bg=<?php echo $Invoice['DocNumber'];?>">BG Email</a> </td>
+    <td> <a title="Print Email" class="btn btn-warning btn-sm invoice-email"  href="example_invoice_email.php?printing=<?php echo $Invoice['DocNumber'];?>">Print</a> </td>
+    <td> <a title="View Files Email" class="btn btn-info btn-sm invoice-email" href="example_invoice_email.php?shipping=<?php echo $Invoice['DocNumber'];?>">View Files</a> </td>
   </tr>
 <?php } ?>  </table>  
   </div>
@@ -248,7 +255,7 @@ $('<iframe id="some-dialog" class="window-Frame" src='+linkt+' />').dialog({
 	}).width(SetWidth-20).height(SetHeight-20);
 }
 function UpdateInvoiceData(InvoiceId,FieldName,Data){ 
-    var url = "ajax_invoice_add.php?InvoiceId="+InvoiceId+"&FieldName="+FieldName+"&Data="+Data;
+    var url = "ajax_invoice_local_add.php?InvoiceId="+InvoiceId+"&FieldName="+FieldName+"&Data="+Data;
     //alert("");
     //$('#main_body').hide();
     $('#ajax_wait').show();

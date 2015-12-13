@@ -1,4 +1,6 @@
-<?php require_once dirname(__FILE__) . '/config.php'; ?> 
+<?php require_once dirname(__FILE__) . '/config.php'; 
+require_once dirname(__FILE__) . '/lib/include.php';
+?> 
 
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -7,6 +9,29 @@
 <?php         
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
+if(isset($_REQUEST['send_follow_email']))
+{
+    $message = new Email();
+    //$to = $_REQUEST['to'];
+    $message->To = "mhmmd.nauman@gmail.com";
+    $message->Cc = "sobiasafdar486@gmail.com";
+    $message->From = "mhmmd.nauman@gmail.com";
+    $message->Subject = "Invoice Email";
+    $message->Content = $_REQUEST['message'];
+    $message->TextOnly = false;
+    if($message->Send()){?>
+        <div class="alert alert-success">
+            Mail Sent.
+        </div>
+        
+    <?php }else{?>
+        <div class="alert alert-warning">
+            Error! Email Server not working.
+        </div>
+    <?php }
+     
+      
+}
 
 if(isset($_REQUEST['follow']))
 {
@@ -58,7 +83,7 @@ foreach ($invoices as $Invoice)  // email address  of customer
     </div>
 
       
-    <button type="submit" class="btn btn-info">Send</button>
+      <button type="submit" class="btn btn-info" name="send_follow_email">Send</button>
     <button type="submit" class="btn btn-danger">Cancel</button>
   </form>
 </div>

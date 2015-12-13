@@ -1,5 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/config.php';
+require_once dirname(__FILE__) . '/lib/include.php';
+$objInvoice = new Invoice();
 ?>
 <html>
 <head>
@@ -88,8 +90,9 @@ require_once dirname(__FILE__) . '/config.php';
 <?php 
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice  ORDERBY TxnDate DESC  STARTPOSITION 1 MAXRESULTS 10 ");
+$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice ");
 //where 1 ORDERBY ShipDate DESC
+
 //echo "<pre>";
 //print_r($invoices[0]);
 //echo "</pre>";
@@ -114,6 +117,40 @@ foreach ($invoices as $Invoice) {
    if(is_object($Customer[0])){
     $PreferredDeliveryMethod= $Customer[0]->getXPath('//Customer/PreferredDeliveryMethod');
    }
+    $addr=$Invoice->getBillEmail(0);
+    if(isset($addr)) $email = $Invoice->getBillEmail(0)->getAddress();
+    else {
+        if(is_object($Customer[0])){
+              $email=$Customer[0]->getPrimaryEmailAddr(0)->getAddress();
+
+        }
+    }
+     
+    
+   $objInvoice->InsertInvoice(array("DocNumber"=>$Invoice->getDocNumber(),
+        "TxnDate"=>$Invoice->getTxnDate(),
+        "Id"=>$invoice_id,
+        //"CurrencyRef_name"=>$Invoice->getCurrencyRef_name(),
+        "CustomerRef"=>$Invoice->getCustomerRef(),
+        "CustomerRef_name"=>$Invoice->getCustomerRef_name(),
+        //"CustomerMemo"=>$Invoice->getCustomerMemo(),
+        "SalesTermRef"=>$Invoice->getSalesTermRef(),
+        "DueDate"=>$Invoice->getDueDate(),
+        "ShipDate"=>$Invoice->getShipDate(),
+        "TotalAmt"=>$Invoice->getTotalAmt(),
+        "ApplyTaxAfterDiscount"=>$Invoice->getApplyTaxAfterDiscount(),
+        "PrintStatus"=>$Invoice->getPrintStatus(),
+        "EmailStatus"=>$Invoice->getEmailStatus(),
+        "BillEmail"=>$email,
+        "Balance"=>$Invoice->getBalance(),
+        "Deposit"=>$Invoice->getDeposit(),
+        "AllowIPNPayment"=>$Invoice->getAllowIPNPayment(),
+        "AllowOnlinePayment"=>$Invoice->getAllowOnlinePayment(),
+        "AllowOnlineCreditCardPayment"=>$Invoice->getAllowOnlineCreditCardPayment(),
+        "AllowOnlineACHPayment"=>$Invoice->getAllowAllowOnlineACHPayment(),
+        
+        ));
+   
    //exit;
    ?>
 <script>
