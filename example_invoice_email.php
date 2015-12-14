@@ -1,5 +1,17 @@
 <?php require_once dirname(__FILE__) . '/config.php'; 
 require_once dirname(__FILE__) . '/lib/include.php';
+$objInvoice = new Invoice();
+$InvoiceService = new QuickBooks_IPP_Service_Invoice();
+$garment_supplier_array=array(
+                                "Sanmar"=>"mindir@sanmarcanada.com",
+                                "Technosport"=>"mto@technosport.com "
+                            );
+$print_supplier_array=array(
+                            "SuperGraphics"=>"Supergraphics@telus.net",
+                            "Double L"=>"jenny@doublel.ca",
+                            "Top Notch"=>"info@sewtopnotch.com",
+                            "True Screen"=>"truescreen@telus.net");
+//$CustomerService = new QuickBooks_IPP_Service_Customer();
 ?> 
 
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -7,9 +19,7 @@ require_once dirname(__FILE__) . '/lib/include.php';
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
   <script src="js/tinymce/tinymce.min.js"></script>
 <?php         
-$InvoiceService = new QuickBooks_IPP_Service_Invoice();
-$CustomerService = new QuickBooks_IPP_Service_Customer();
-if(isset($_REQUEST['send_follow_email']))
+if(isset($_REQUEST['send']))
 {
     $message = new Email();
     //$to = $_REQUEST['to'];
@@ -35,20 +45,8 @@ if(isset($_REQUEST['send_follow_email']))
 
 if(isset($_REQUEST['follow']))
 {
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice where DocNumber='".QuickBooks_IPP_IDS::usableIDType("{-".$_REQUEST['follow']."}")."'");
-
-foreach ($invoices as $Invoice)  // email address  of customer 
-    {   
-    $addr=$Invoice->getBillEmail(0);
-    if(isset($addr))  $to=$Invoice->getBillEmail(0)->getAddress();
-    else {
-        foreach ($customer as $customers)
-                {
-                 $to=$customers->getPrimaryEmailAddr(0)->getAddress();
-                }
-    }
-}
-            ?> 
+$invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['follow'],array("*"));
+?> 
   <div class="container">
   
   <form role="form">
@@ -58,32 +56,23 @@ foreach ($invoices as $Invoice)  // email address  of customer
     </div>
     <div class="form-group">
         <label for="pwd">To:</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $to; ?>"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $invoices[0]['BillEmail']; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
         <textarea id="message" class="form-control" name="message" placeholder="Message.......">
-            Hello 
-                    <?php foreach ($invoices as $Invoice) {
-                    echo $name= $Invoice->getCustomerRef_name()."<br>";
-                    }
-                    ?>             
-<br><br> 
-            We hope you loved the custom printed clothing items we provided! If you have any issues with the products, please let us know and we will do our best to resolve any issues. 
-<br><br> 
-           If you have time to, please leave us a review on Google Plus. It helps build our online reputation and provides us with valuable feedback so we can better ourselves the next time.
-<br><br>   
-            Thank you and have a great day!
-<br><br>   
-            Kind Regards,
-<br><br>
-            Boaz Chan
-<br><br>            Coastal Reign Printing Team
-            </textarea>
+            Hello <?php echo $invoices[0]['CustomerRef_name']."<br>"; ?>             
+            <br><br>We hope you loved the custom printed clothing items we provided! If you have any issues with the products, please let us know and we will do our best to resolve any issues. 
+            <br><br>If you have time to, please leave us a review on Google Plus. It helps build our online reputation and provides us with valuable feedback so we can better ourselves the next time.
+            <br><br>Thank you and have a great day!
+            <br><br>Kind Regards,
+            <br><br>Boaz Chan
+            <br><br>Coastal Reign Printing Team
+        </textarea>
     </div>
 
       
-      <button type="submit" class="btn btn-info" name="send_follow_email">Send</button>
+    <button type="submit" class="btn btn-info" name="send">Send</button>
     <button type="submit" class="btn btn-danger">Cancel</button>
   </form>
 </div>
@@ -91,19 +80,9 @@ foreach ($invoices as $Invoice)  // email address  of customer
 
 if(isset($_REQUEST['bg']))
 {
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice where DocNumber='".QuickBooks_IPP_IDS::usableIDType("{-".$_REQUEST['bg']."}")."'");
-
-//echo "<pre>";
-//echo print_r($invoices);
-//echo"</pre>";
-
-foreach ($invoices as $Invoice)  
-    {
-    //
-    }
-?> 
-  <div class="container">
-  
+    $invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['bg'],array("*"));   
+?>   
+<div class="container">
   <form role="form">
     <div class="form-group">
         <label for="email">Subject:</label>
@@ -111,42 +90,21 @@ foreach ($invoices as $Invoice)
     </div>
     <div class="form-group">
         <label for="pwd">Recipient :</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="[Blank Garment Supplier Email]"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $garment_supplier_array[$invoices[0]['blank_garment_supplier']]; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
         <textarea id="message" class="form-control" name="message" placeholder="Message.......">
-            Please have the following items shipped over to [Print Supplier]. 
-
-
-            <br><br>
-<?php 
-foreach ($invoices as $Invoice)  // email address  of customer 
-    { 
-    echo "<br><br>Product Line ".$Invoice->getLine(0)->getLineNum().":"; 
-        
-    echo "<br>-  ".$Invoice->getLine(0)->getSalesItemLineDetail(0)->getItemRef_name();
-    echo "<br>-  ".$Invoice->getLine(0)->getDescription();
-    
-//
-//echo "my count".    count($Invoice->getLine()) ."<br><br>";
-//    
-//$arr=$Invoice->getLine();
-//foreach($arr as $var)
-//    {
-//    echo $var;
-//    echo "code executing";
-//    }
-
-    }
-    ?>
-        <br><br> Thanks
-        <br><br> Boaz Chan
+            Please have the following items shipped over to <?php echo $invoices[0]['PrintSupplier2']."[";   echo $print_supplier_array[$invoices[0]['PrintSupplier2']]."]"; ?>. 
+                <br><br>
+               
+            <br><br> Thanks
+            <br><br> Boaz Chan
         </textarea>
     </div>
 
       
-    <button type="submit" class="btn btn-info">Send</button>
+    <button type="submit" class="btn btn-info" name="send">Send</button>
     <button type="submit" class="btn btn-danger">Cancel</button>
   </form>
 </div>
@@ -155,36 +113,30 @@ foreach ($invoices as $Invoice)  // email address  of customer
 
 if(isset($_REQUEST['printing']))
 {
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice where DocNumber='".QuickBooks_IPP_IDS::usableIDType("{-".$_REQUEST['printing']."}")."'");
-
-foreach ($invoices as $Invoice)  // email address  of customer 
-    {   
-    $due= $Invoice->getDueDate();
-}
-            ?> 
-  <div class="container">
-  
+    $invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['printing'],array("*"));    
+?> 
+<div class="container">  
   <form role="form">
     <div class="form-group">
         <label for="email">Subject:</label>
-        <input type="text" id="subject" name="subject" class="form-control" placeholder="Subject" value="PO#<?php echo $_REQUEST['printing']; ?> Due for : “<?php echo date('Y-m-d');?> + <?php echo $due;?> – 4 days."/>
+        <input type="text" id="subject" name="subject" class="form-control" placeholder="Subject" value="PO#<?php echo $_REQUEST['printing']; ?> Due for : “<?php echo date('Y-m-d');?> + <?php echo $invoices[0]['DueDate'];?> – 4 days."/>
     </div>
     <div class="form-group">
         <label for="pwd">To:</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="[Print Supplier Email.]"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $print_supplier_array[$invoices[0]['PrintSupplier2']]; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
         <textarea id="message" class="form-control" name="message" placeholder="Message.......">
             Hello,
-            <br><br>Please have this ready for pick up “<?php echo date('Y-m-d');?> + <?php echo $due;?> – 4 days”. Attached is the packing slip, mockups, and any other relevant files. Please reply back letting us know if the Due Date is within schedule. 
+            <br><br>Please have this ready for pick up “<?php echo date('Y-m-d');?> + <?php echo $invoices[0]['DueDate'];?> – 4 days”. Attached is the packing slip, mockups, and any other relevant files. Please reply back letting us know if the Due Date is within schedule. 
             <br><br>   Thanks!
             <br><br>   Boaz Chan
         </textarea>
     </div>
 
       
-    <button type="submit" class="btn btn-info">Send</button>
+    <button type="submit" class="btn btn-info" name="send">Send</button>
     <button type="submit" class="btn btn-danger">Cancel</button>
   </form>
 </div>
@@ -193,60 +145,26 @@ foreach ($invoices as $Invoice)  // email address  of customer
 
 if(isset($_REQUEST['shipping']))
 {
-    $invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice where DocNumber='".QuickBooks_IPP_IDS::usableIDType("{-".$_REQUEST['shipping']."}")."'");
-
-    foreach ($invoices as $Invoice)  // email address  of customer 
-    {   
-    $addr=$Invoice->getBillEmail(0);
-    if(isset($addr))  $to=$Invoice->getBillEmail(0)->getAddress();
-    else {
-        foreach ($customer as $customers)
-                {
-                 $to=$customers->getPrimaryEmailAddr(0)->getAddress();
-                }
-    }
-    
-   $customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'"); 
-   
-    
-    foreach ($customer as $customers)
-                {
-                $checkinprimary = $customers->getBillAddr(0);
-                if ($checkinprimary) {
-                     $checkinshipping = $Invoice->getShipAddr(0);
-                            if ($checkinshipping) {
-                                $address= $Invoice->getShipAddr(0)->getLine1();?><?php echo $Invoice->getShipAddr(0)->getCity();?><?php echo $Invoice->getShipAddr(0)->getPostalCode();
-                            }
-                            else {
-                                $address= $customers->getBillAddr(0)->getLine1()." , " .$customers->getBillAddr(0)->getCountrySubDivisionCode()." , " .$customers->getBillAddr(0)->getPostalCode();
-                            }
-                } 
-                }
-}
-            ?> 
-  <div class="container">
- 
-  <form role="form">
+    $invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['shipping'],array("*"));    
+?> 
+<div class="container">
+   <form role="form">
     <div class="form-group">
         <label for="email">Subject:</label>
         <input type="text" id="subject" name="subject" class="form-control" placeholder="Subject" value="Coastal Reign: Your order has been shipped! Order Number# <?php echo $_REQUEST['shipping']; ?>."/>
     </div>
     <div class="form-group">
         <label for="pwd">To:</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $to; ?>"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $invoices[0]['BillEmail']; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
         <textarea id="message" class="form-control" name="message" placeholder="Message.......">
-            Hello 
-                    <?php foreach ($invoices as $Invoice) {
-                    echo $name= $Invoice->getCustomerRef_name()." ,<br>";
-                    }
-                    ?>             
-            I am pleased to inform you that your order has finished printing! As stated in our earlier conversation, your order is being shipped via  [Shipping Method], which will take [dependant on shipping method] days.
+            Hello <?php echo $invoices[0]['CustomerRef_name'];  ?>             
+            I am pleased to inform you that your order has finished printing! As stated in our earlier conversation, your order is being shipped via  <?php echo $invoices[0]['CustomerPreferredDeliveryMethod'];  ?>, which will take <?php echo $invoices[0]['ShipDate'];  ?> days.
             <br><br>Here are the details of your delivery.
-            <br><br><?php $address; ?>
-            <br><br>[Tracking Number]
+            <br><br>Shipping Address : <?php echo $invoices[0]['ship_address'];  ?> 
+            <br><br>Tracking No : <?php echo $invoices[0]['tracking_no'];  ?> 
             <br><br>Please let us know if you have any concerns. Otherwise, we are excited to say that your items will be in your hands in no time. 
             <br><br>Thanks,
             <br><br>Boaz
@@ -254,7 +172,7 @@ if(isset($_REQUEST['shipping']))
     </div>
 
       
-    <button type="submit" class="btn btn-info">Send</button>
+       <button type="submit" class="btn btn-info" name="send">Send</button>
     <button type="submit" class="btn btn-danger">Cancel</button>
   </form>
 </div>

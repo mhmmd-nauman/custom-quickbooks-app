@@ -176,15 +176,17 @@ foreach ($invoices as $Invoice) {
             ?>
             </select>
                 <select onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" name="PrintSupplier2" class="small-drop-down">
-                <?php   foreach ($print_supplier_array as $supplier)    {   ?>
+                    <option value="">Select</option>
+                    <?php   foreach ($print_supplier_array as $supplier)    {   ?>
                     <option value="<?php echo $supplier;?>" <?php if($supplier == $Invoice['PrintSupplier2'])echo"selected";?>><?php echo $supplier;?></option>
                 <?php        }   ?>
                 </select>    
     </td>
     <td>
          <select onchange="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" name="blank_garment_supplier" class="small-drop-down">
+            <option value="">Select</option>
             <?php   foreach ($garment_supplier_array as $supplier)  { ?>
-                <option value="<?php echo $supplier;?>" <?php if($supplier == $Invoice['blank_garment_supplier'])echo"selected";?>><?php echo $supplier;?></option>
+            <option value="<?php echo $supplier;?>" <?php if($supplier == $Invoice['blank_garment_supplier'])echo"selected";?>><?php echo $supplier;?></option>
             <?php  }   ?>
         </select>    
     </td>
@@ -218,7 +220,10 @@ foreach ($invoices as $Invoice) {
                 
         </select>
     </td>
-    <td> <?php //echo $Invoice['Number']; ?>/<input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tract_date" type="text" name="tract_date" id="tract_date<?php echo $invoice_id;?>" value="<?php echo date("m/d/Y",  strtotime($Invoice['TxnDate']));?>"></td>
+    <td> <?php //echo $Invoice['Number']; ?>
+        <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tracking_no" type="text" name="tracking_no" id="tracking_no<?php echo $invoice_id;?>" value="<?php echo $Invoice['tracking_no'];?>">
+        /
+        <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tract_date" type="text" name="tract_date" id="tract_date<?php echo $invoice_id;?>" value="<?php echo date("m/d/Y",  strtotime($Invoice['TxnDate']));?>"></td>
     <td> 
         <button onclick="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" type = "button" name="hide_button" id="hide_button" class = "btn btn-success btn-sm">Hide</button>
         </td>

@@ -10,6 +10,10 @@ $objInvoice = new Invoice();
 //print_r($Invoice);
 //exit;
 switch($_REQUEST['FieldName']){
+    case"tracking_no":
+        $objInvoice->UpdateInvoice("Id = ".$_REQUEST['InvoiceId'], array("tracking_no"=>$_REQUEST['Data']));
+        print('&nbsp; Updated!<br>');
+        break;
     case"PhoneNo":
         $objInvoice->UpdateInvoice("Id = ".$_REQUEST['InvoiceId'], array("PhoneNo"=>$_REQUEST['Data']));
         print('&nbsp; Updated!<br>');
