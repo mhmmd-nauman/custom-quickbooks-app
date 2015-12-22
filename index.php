@@ -44,18 +44,18 @@ require_once dirname(__FILE__) . '/config.php';
 
 <div class="row">
   <ul class = "nav navbar-nav">
-    <li class = "active"><a href = "index.php">Home</a></li>
-    <li><a href = "example_customer_query.php">Customers</a></li>
-    <li><a href = "example_invoice_query.php">Invoices</a></li>
-    <li><a href = "example_invoice_w_lines_query.php">Invoices with Lines</a></li>
-    <li><a href = "example_payment_query.php">Payments</a></li>
-    <li><a href = "example_items_query.php">Items</a></li>
+    <li class = "active"><a href = "index.php">QB Live Invoice Data</a></li>
+    <li><a href = "index_local_db.php">Local Cached Invoice Data</a></li>
+    <li><a href = "#">Link1</a></li>
+    <li><a href = "#">Link2</a></li>
+    <li><a href = "#">Link3</a></li>
+    <li><a href = "#">Items</a></li>
   </ul>
 </div>
 
 <div class="row">
     <div class="col-md-4">
-      <h1>Invoice Details</h1>
+      <h1>QB Live Invoice Data</h1>
     </div>
     <div class="col-md-6 pull-right" id="ajax_wait" align="center" style=" display:none;font-weight:bold; font-size:18px; color:#CCCCCC; border: solid #000 1px;">Please Wait...</div>
     </div>
@@ -88,7 +88,7 @@ require_once dirname(__FILE__) . '/config.php';
 <?php 
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice  ORDERBY TxnDate DESC  STARTPOSITION 1 MAXRESULTS 10 ");
+$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice   ORDERBY TxnDate DESC  STARTPOSITION 1 MAXRESULTS 10 ");
 //where 1 ORDERBY ShipDate DESC
 //echo "<pre>";
 //print_r($invoices[0]);
@@ -199,7 +199,10 @@ foreach ($invoices as $Invoice) {
         <?php
         
             if(is_object($Customer[0])){
-                echo $customers->getPrimaryPhone(0)->getFreeFormNumber();
+                if(is_object($customers->getPrimaryPhone(0))){
+                    echo $customers->getPrimaryPhone(0)->getFreeFormNumber();
+            
+                }
             }
         ?>        
     </td>

@@ -2,6 +2,7 @@
 require_once dirname(__FILE__) . '/config.php';
 require_once dirname(__FILE__) . '/lib/include.php';
 $objInvoice = new Invoice();
+$objInvoiceList = new InvoicesList();
 ?>
 <html>
 <head>
@@ -90,6 +91,7 @@ $objInvoice = new Invoice();
 <?php 
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
+$ItemService = new QuickBooks_IPP_Service_Item();
 $invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice ");
 //where 1 ORDERBY ShipDate DESC
 
@@ -127,31 +129,66 @@ foreach ($invoices as $Invoice) {
     }
      
     
-   $objInvoice->InsertInvoice(array("DocNumber"=>$Invoice->getDocNumber(),
-        "TxnDate"=>$Invoice->getTxnDate(),
-        "Id"=>$invoice_id,
-        //"CurrencyRef_name"=>$Invoice->getCurrencyRef_name(),
-        "CustomerRef"=>$Invoice->getCustomerRef(),
-        "CustomerRef_name"=>$Invoice->getCustomerRef_name(),
-        //"CustomerMemo"=>$Invoice->getCustomerMemo(),
-        "SalesTermRef"=>$Invoice->getSalesTermRef(),
-        "DueDate"=>$Invoice->getDueDate(),
-        "ShipDate"=>$Invoice->getShipDate(),
-        "TotalAmt"=>$Invoice->getTotalAmt(),
-        "ApplyTaxAfterDiscount"=>$Invoice->getApplyTaxAfterDiscount(),
-        "PrintStatus"=>$Invoice->getPrintStatus(),
-        "EmailStatus"=>$Invoice->getEmailStatus(),
-        "BillEmail"=>$email,
-        "Balance"=>$Invoice->getBalance(),
-        "Deposit"=>$Invoice->getDeposit(),
-        "AllowIPNPayment"=>$Invoice->getAllowIPNPayment(),
-        "AllowOnlinePayment"=>$Invoice->getAllowOnlinePayment(),
-        "AllowOnlineCreditCardPayment"=>$Invoice->getAllowOnlineCreditCardPayment(),
-        "AllowOnlineACHPayment"=>$Invoice->getAllowAllowOnlineACHPayment(),
+//   $objInvoice->InsertInvoice(array("DocNumber"=>$Invoice->getDocNumber(),
+//        "TxnDate"=>$Invoice->getTxnDate(),
+//        "Id"=>$invoice_id,
+//        //"CurrencyRef_name"=>$Invoice->getCurrencyRef_name(),
+//        "CustomerRef"=>$Invoice->getCustomerRef(),
+//        "CustomerRef_name"=>$Invoice->getCustomerRef_name(),
+//        //"CustomerMemo"=>$Invoice->getCustomerMemo(),
+//        "SalesTermRef"=>$Invoice->getSalesTermRef(),
+//        "DueDate"=>$Invoice->getDueDate(),
+//        "ShipDate"=>$Invoice->getShipDate(),
+//        "TotalAmt"=>$Invoice->getTotalAmt(),
+//        "ApplyTaxAfterDiscount"=>$Invoice->getApplyTaxAfterDiscount(),
+//        "PrintStatus"=>$Invoice->getPrintStatus(),
+//        "EmailStatus"=>$Invoice->getEmailStatus(),
+//        "BillEmail"=>$email,
+//        "Balance"=>$Invoice->getBalance(),
+//        "Deposit"=>$Invoice->getDeposit(),
+//        "AllowIPNPayment"=>$Invoice->getAllowIPNPayment(),
+//        "AllowOnlinePayment"=>$Invoice->getAllowOnlinePayment(),
+//        "AllowOnlineCreditCardPayment"=>$Invoice->getAllowOnlineCreditCardPayment(),
+//        "AllowOnlineACHPayment"=>$Invoice->getAllowAllowOnlineACHPayment(),
+//        
+//        ));
+  
+//        $count = $Invoice->countLine();
+//        for ($i = 0; $i < $count-1; $i++)
+//        {
+//          $Line = $Invoice->getLine($i);
+//            $objInvoiceList->InsertInvoiceList(array(
+//                "DocNumber"=>$Invoice->getDocNumber(),
+//                 "LineNum"=>$Invoice->getLine($i)->getLineNum(),
+//                // "ItemRef_name"=>$ref_name,
+//                 "Description"=>$Invoice->getLine($i)->getDescription()
+//                    ));
+//        }
         
-        ));
-   
-   //exit;
+        
+            $num_lines = $Invoice->countLine(); 		// How many line items are there?
+            for ($i = 0; $i < $num_lines; $i++)
+            {
+                $Line = $Invoice->getLine($i);
+                if ($Line->getDetailType() == 'SalesItemLineDetail')
+                {
+                        // echo "<br><br>Product Line ".$Invoice->getLine($i)->getLineNum().":"; echo "<br>- ";
+                         $Detail = $Line->getSalesItemLineDetail();
+                        $item_id = $Detail->getItemRef();
+//                        print('Item id is: ' . $item_id . "\n");
+                        $items = $ItemService->query($Context, $realm, "SELECT * FROM Item WHERE Id = '" . QuickBooks_IPP_IDS::usableIDType($item_id) . "' ");
+//                        print('   That item is named: ' . $items[0]->getName() . "\n");
+//                         echo "<br>-  ".$Invoice->getLine($i)->getDescription();
+                        $objInvoiceList->InsertInvoiceList(array(
+                            "DocNumber"=>$Invoice->getDocNumber(),
+                             "LineNum"=>$Invoice->getLine($i)->getLineNum(),
+                             "ItemRef_name"=>$items[0]->getName(),
+                             "Description"=>$Invoice->getLine($i)->getDescription()
+                                ));
+                }
+            }
+        
+    //exit;
    ?>
 <script>
     $(function() {
