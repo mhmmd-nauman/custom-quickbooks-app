@@ -9,7 +9,13 @@ require_once dirname(__FILE__) . '/config.php';
          initial-scale = 1">
       
       <title>Quickbooks Custom Application</title>
-      
+      <script type="text/javascript" src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js"></script>
+       <script type="text/javascript">
+        intuit.ipp.anywhere.setup({
+                menuProxy: '<?php print($quickbooks_menu_url); ?>',
+                grantUrl: '<?php print($quickbooks_oauth_url); ?>'
+        });
+        </script>
       <!-- Bootstrap -->
       <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" 
          rel = "stylesheet">
@@ -41,7 +47,7 @@ require_once dirname(__FILE__) . '/config.php';
    </head>
 <body>
 <div class="container-fluid">
-
+<?php if ($quickbooks_is_connected){ ?>
 <div class="row">
   <ul class = "nav navbar-nav">
     <li class = "active"><a href = "index.php">QB Live Invoice Data</a></li>
@@ -59,8 +65,7 @@ require_once dirname(__FILE__) . '/config.php';
     </div>
     <div class="col-md-6 pull-right" id="ajax_wait" align="center" style=" display:none;font-weight:bold; font-size:18px; color:#CCCCCC; border: solid #000 1px;">Please Wait...</div>
     </div>
-  </div>
-</div>
+  
 <div class="row">
   <div class="col-md-12">
     <hr>
@@ -225,12 +230,36 @@ foreach ($invoices as $Invoice) {
   </tr>
 <?php } ?>  </table>  
   </div>
-</div><div class="row">
+</div>
+<div class="row">
   <div class="col-md-12">
     <hr>
   </div>
 </div>
+<?php }else{ ?>
+<div class="row">
+  <div class="col-md-12">
+      <br>
+  </div>
+</div>
+<div class="row">
+    <div class="col-md-12" style="border: 2px solid red; text-align: center; padding: 8px; color: red;">
+        <b>NOT</b> CONNECTED!<br>
+        <br>
+        <ipp:connectToIntuit></ipp:connectToIntuit>
+        <br>
+        <br>
+        You must authenticate to QuickBooks <b>once</b> before you can exchange data with it. <br>
+        <br>
+        <strong>You only have to do this once!</strong> <br><br>
 
+        After you've authenticated once, you never have to go 
+        through this connection process again. <br>
+        Click the button above to 
+        authenticate and connect.
+    </div>
+</div>
+<?php }?>
 </div>
 </body>
 </html>

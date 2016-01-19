@@ -1,10 +1,9 @@
 <?php  
-    class Invoice extends util {
+    class InvoicesList extends util {
 	
         
-        function GetAllInvoices($strWhere,$fieldaArray=array("*")){
+        function GetAllInvoicesList($strWhere,$fieldaArray=array("*")){
             global $link;
-            //$arr = array("");
             reset($fieldaArray);
             $strFields="";
             foreach ($fieldaArray as $field){
@@ -12,7 +11,7 @@
             } 
             //remove the last comma
             $strFields = substr($strFields, 0, strlen($strFields) - 1);	
-            $sql="SELECT $strFields FROM invoices  " . " WHERE $strWhere " ;
+            $sql="SELECT $strFields FROM invoiceslist  " . " WHERE $strWhere " ;
             $result=mysqli_query($link,$sql) ;
             while($row=mysqli_fetch_array($result)){
                 $arr[] = $row;
@@ -21,27 +20,27 @@
             return $arr; 
         }
 	
-	function UpdateInvoice($where,$array){
+	function UpdateInvoiceList($where,$array){
             if($array){
-                $updated_id = util::updateRecord("invoices",$where,$array);
+                $updated_id = util::updateRecord("invoiceslist",$where,$array);
                 return $updated_id;
             } else {
                 return 0;
             }
 	}	
 	
-        function InsertInvoice($array){
+        function InsertInvoiceList($array){
             if($array){
-                $inserted_id = util::insertRecord("invoices",$array);
+                $inserted_id = util::insertRecord("invoiceslist",$array);
                 return $inserted_id;
             } else {
                 return 0;
             }
 	}
 	
-        function DeleteInvoice($ID){
+        function DeleteInvoiceList($ID){
             if($ID){
-                    $deleted_id = util::deleteRecord("invoices","DocNumber = $ID");
+                    $deleted_id = util::deleteRecord("invoiceslist","DocNumber = $ID");
                     return $deleted_id;
             } else {
                     return 0;
