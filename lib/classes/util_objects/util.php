@@ -31,7 +31,7 @@ class util
 //or die("Error in the consult.." . mysqli_error($link));
 //              $strQuery."<br> execute query";
 //             
-  //          echo $strQuery;
+ //          echo $strQuery;
 //
 //             echo "<br/>";
             mysqli_query($link,$strQuery) ;
@@ -89,7 +89,7 @@ class util
       function deleteRecord($strTable, $strCriteria){
 	  global $link;
 
-	 $strQuery = "DELETE FROM $strTable WHERE $strCriteria" or die("Error in the consult.." . mysqli_error($link));
+         $strQuery = "DELETE FROM $strTable WHERE $strCriteria" or die("Error in the consult.." . mysqli_error($link));
 	//echo"vcvcvcvc";		
 	 mysqli_query($link,$strQuery) ;
 	

@@ -57,10 +57,11 @@ $objInvoice = new Invoice();
     <?php    include 'lib/nav.php';?>
     <div class="row">
         <div class="col-md-4">
-            <h1>Local Cache Invoice Details</h1>
+            <h1>Invoice Details</h1>
         </div>
        <div class="col-md-4 pull-right"> <a title="Synchronize data to Quickbooks" class="btn btn-success btn-large invoice-sync"  href="sync_db.php">Synchronize Local Cache to Quickbooks</a> </div>
     </div>
+</div>
     
 <div class="row">
   <div class="col-md-12">
@@ -102,7 +103,7 @@ $CustomerService = new QuickBooks_IPP_Service_Customer();
 //print_r($invoices[0]);
 //echo "</pre>";
 //exit;
-$invoices = $objInvoice->GetAllInvoices("Visible = 1 order by ShipDate desc",array("*"));
+$invoices = $objInvoice->GetAllInvoices("1 order by ShipDate desc",array("*"));
 $print_supplier_array=array("SuperGraphics","Double L","Top Notch","True Screen");
 $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
 $garment_supplier_array=array("Sanmar","Technosport");

@@ -9,6 +9,7 @@
             foreach ($fieldaArray as $field){
                 $strFields .=  "".$field . " ,";
             } 
+            $arr=array();
             //remove the last comma
             $strFields = substr($strFields, 0, strlen($strFields) - 1);	
             $sql="SELECT $strFields FROM invoiceslist  " . " WHERE $strWhere " ;

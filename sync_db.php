@@ -18,9 +18,12 @@ foreach ($local_invoices as $local_Invoice) {
     $live_invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice WHERE DocNumber = '".QuickBooks_IPP_IDS::usableIDType($local_Invoice['DocNumber'])."' ");
     $Invoice = $live_invoices[0];
             
-            //  echo "<pre>";
-            //  print_r($Invoice);
-            //  echo "</pre>";
+//              echo "<pre>";
+//              print_r($Invoice);
+//              echo "</pre>";
+//              echo "<pre>";
+//             echo $Invoice->getCustomerRef();
+//              echo "</pre>";
 
     $customers = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'"); 
     $Customer = $customers[0];
@@ -108,5 +111,5 @@ foreach ($local_invoices as $local_Invoice) {
 }
 
 if($message) 
-  print('&nbsp; Email Address Updated!<br>');
+  print('&nbsp; All Email Address Updated!<br>');
 ?>

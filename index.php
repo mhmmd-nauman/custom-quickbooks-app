@@ -48,22 +48,16 @@ require_once dirname(__FILE__) . '/config.php';
 <body>
 <div class="container-fluid">
 <?php if ($quickbooks_is_connected){ ?>
-<div class="row">
-  <ul class = "nav navbar-nav">
-    <li class = "active"><a href = "index.php">QB Live Invoice Data</a></li>
-    <li><a href = "index_local_db.php">Local Cached Invoice Data</a></li>
-    <li><a href = "#">Link1</a></li>
-    <li><a href = "#">Link2</a></li>
-    <li><a href = "#">Link3</a></li>
-    <li><a href = "#">Items</a></li>
-  </ul>
-</div>
+<?php    include 'lib/nav.php';?>
 
 <div class="row">
     <div class="col-md-4">
       <h1>QB Live Invoice Data</h1>
     </div>
+    <!--
     <div class="col-md-6 pull-right" id="ajax_wait" align="center" style=" display:none;font-weight:bold; font-size:18px; color:#CCCCCC; border: solid #000 1px;">Please Wait...</div>
+    -->
+    <div class="col-md-4 pull-right"> <a title="Synchronize Local Cache with Live QB Invoice Data" class="btn btn-success btn-large invoice-sync"  href="index_CRON.php">Synchronize Local Cache with Live QB Invoice Data</a> </div>
     </div>
   
 <div class="row">
@@ -76,6 +70,7 @@ require_once dirname(__FILE__) . '/config.php';
   <div class="col-md-12">
       <table class="table table-striped table-bordered table-responsive" style=" font-size: 10px;">
   <tr>
+    <td> SrNo </td>
     <td style=" width: 10%;"> Client Name/Email </td>
     <td> Invoice# /<br>Amount Owing /<br>Ship Date </td>
     
@@ -93,7 +88,7 @@ require_once dirname(__FILE__) . '/config.php';
 <?php 
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $CustomerService = new QuickBooks_IPP_Service_Customer();
-$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice   ORDERBY TxnDate DESC  STARTPOSITION 1 MAXRESULTS 10 ");
+$invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice   ORDERBY TxnDate DESC   ");
 //where 1 ORDERBY ShipDate DESC
 //echo "<pre>";
 //print_r($invoices[0]);
@@ -101,8 +96,9 @@ $invoices = $InvoiceService->query($Context, $realm, "SELECT * FROM Invoice   OR
 //exit;
 $print_supplier_array=array("SuperGraphics","Double L","Top Notch","True Screen");
 $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
-        
+$sr=0;        
 foreach ($invoices as $Invoice) {
+   $sr++; 
    $Customer = $CustomerService->query($Context, $realm, "SELECT * FROM Customer WHERE id ='".QuickBooks_IPP_IDS::usableIDType($Invoice->getCustomerRef())."'"); 
    //$delivery_method = $customer->getCustomerPreferredDeliveryMethod();
    //echo "<pre>";
@@ -127,6 +123,7 @@ foreach ($invoices as $Invoice) {
     });
     </script>
 <tr>
+    <td><?php echo $sr; ?></td>
     <td><?php 
             //echo    $id= $Invoice->getCustomerRef();
             echo $name= $Invoice->getCustomerRef_name();

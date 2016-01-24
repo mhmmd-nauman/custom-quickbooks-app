@@ -45,23 +45,13 @@ $objInvoiceList = new InvoicesList();
 <body>
 <div class="container-fluid">
 
-<div class="row">
-  <ul class = "nav navbar-nav">
-    <li class = "active"><a href = "index.php">Home</a></li>
-    <li><a href = "example_customer_query.php">Customers</a></li>
-    <li><a href = "example_invoice_query.php">Invoices</a></li>
-    <li><a href = "example_invoice_w_lines_query.php">Invoices with Lines</a></li>
-    <li><a href = "example_payment_query.php">Payments</a></li>
-    <li><a href = "example_items_query.php">Items</a></li>
-  </ul>
-</div>
+<?php    include 'lib/nav.php';?>
 
 <div class="row">
     <div class="col-md-4">
       <h1>Invoice Details</h1>
     </div>
     <div class="col-md-6 pull-right" id="ajax_wait" align="center" style=" display:none;font-weight:bold; font-size:18px; color:#CCCCCC; border: solid #000 1px;">Please Wait...</div>
-    </div>
   </div>
 </div>
 <div class="row">
@@ -128,42 +118,80 @@ foreach ($invoices as $Invoice) {
         }
     }
      
-    
-//   $objInvoice->InsertInvoice(array("DocNumber"=>$Invoice->getDocNumber(),
-//        "TxnDate"=>$Invoice->getTxnDate(),
-//        "Id"=>$invoice_id,
-//        //"CurrencyRef_name"=>$Invoice->getCurrencyRef_name(),
-//        "CustomerRef"=>$Invoice->getCustomerRef(),
-//        "CustomerRef_name"=>$Invoice->getCustomerRef_name(),
-//        //"CustomerMemo"=>$Invoice->getCustomerMemo(),
-//        "SalesTermRef"=>$Invoice->getSalesTermRef(),
-//        "DueDate"=>$Invoice->getDueDate(),
-//        "ShipDate"=>$Invoice->getShipDate(),
-//        "TotalAmt"=>$Invoice->getTotalAmt(),
-//        "ApplyTaxAfterDiscount"=>$Invoice->getApplyTaxAfterDiscount(),
-//        "PrintStatus"=>$Invoice->getPrintStatus(),
-//        "EmailStatus"=>$Invoice->getEmailStatus(),
-//        "BillEmail"=>$email,
-//        "Balance"=>$Invoice->getBalance(),
-//        "Deposit"=>$Invoice->getDeposit(),
-//        "AllowIPNPayment"=>$Invoice->getAllowIPNPayment(),
-//        "AllowOnlinePayment"=>$Invoice->getAllowOnlinePayment(),
-//        "AllowOnlineCreditCardPayment"=>$Invoice->getAllowOnlineCreditCardPayment(),
-//        "AllowOnlineACHPayment"=>$Invoice->getAllowAllowOnlineACHPayment(),
-//        
-//        ));
-  
-//        $count = $Invoice->countLine();
-//        for ($i = 0; $i < $count-1; $i++)
-//        {
-//          $Line = $Invoice->getLine($i);
-//            $objInvoiceList->InsertInvoiceList(array(
-//                "DocNumber"=>$Invoice->getDocNumber(),
-//                 "LineNum"=>$Invoice->getLine($i)->getLineNum(),
-//                // "ItemRef_name"=>$ref_name,
-//                 "Description"=>$Invoice->getLine($i)->getDescription()
-//                    ));
-//        }
+    $ship_add='';
+            if(is_object($Customer[0])){
+                $customers = $Customer[0];
+                $checkinprimary = $customers->getBillAddr(0);
+                if ($checkinprimary) {
+                     $checkinshipping = $Invoice->getShipAddr(0);
+                            if ($checkinshipping) {
+                                $ship_add= $Invoice->getShipAddr(0)->getLine1().$Invoice->getShipAddr(0)->getCity().$Invoice->getShipAddr(0)->getPostalCode();
+                            }
+                            else {
+                                $ship_add= $customers->getBillAddr(0)->getLine1()." , " .$customers->getBillAddr(0)->getCountrySubDivisionCode()." , " .$customers->getBillAddr(0)->getPostalCode();
+                            }
+                } 
+            }   
+          $check=$Invoice->getTotalAmt(0);
+            if($check)
+                $total=$Invoice->getTotalAmt();
+            else
+                $total=0;
+           $phone='';
+            if(is_object($Customer[0])){
+                $phone= $customers->getPrimaryPhone(0)->getFreeFormNumber();
+            }
+///////////////////////////////////////////////////////////////////////////////
+            
+            ////// DELETE ALL RECORDS FROM LOCAL DATABASE /////
+           
+//    $local_delete= $objInvoice->DeleteInvoice($Invoice->getDocNumber());
+//    $local_list_delete= $objInvoiceList->DeleteInvoiceList($Invoice->getDocNumber());
+//  if($local_delete)
+//      echo $Invoice->getDocNumber() ." local records deleted<br>";
+//   else
+//       echo "No local records deleted<br>";
+//
+//
+//  if($local_list_delete)
+//      echo $Invoice->getDocNumber() ." local List records deleted<br>";
+//   else
+//       echo "No local List records deleted<br>";
+
+////////////////////////////////////////////////////////////
+ $local_already_exist= $objInvoice->GetAllInvoices("DocNumber = ".$Invoice->getDocNumber() ,array("*"));
+
+    if($local_already_exist)
+    {
+        echo $Invoice->getDocNumber()."already exist<br>";
+    }
+   else
+       {
+       
+   $objInvoice->InsertInvoice(array("DocNumber"=>$Invoice->getDocNumber(),
+        "TxnDate"=>$Invoice->getTxnDate(),
+        "Id"=>$invoice_id,
+        //"CurrencyRef_name"=>$Invoice->getCurrencyRef_name(),
+        "CustomerRef"=>$Invoice->getCustomerRef(),
+        "CustomerRef_name"=>$Invoice->getCustomerRef_name(),
+        //"CustomerMemo"=>$Invoice->getCustomerMemo(),
+        "SalesTermRef"=>$Invoice->getSalesTermRef(),
+        "DueDate"=>$Invoice->getDueDate(),
+        "ShipDate"=>$Invoice->getShipDate(),
+        "ship_address"=>$ship_add, // found in customer table please remove if not working in cron job
+        "TotalAmt"=>$total,
+        "ApplyTaxAfterDiscount"=>$Invoice->getApplyTaxAfterDiscount(),
+        "PrintStatus"=>$Invoice->getPrintStatus(),
+        "EmailStatus"=>$Invoice->getEmailStatus(),
+        "BillEmail"=>$email,
+        "Balance"=>$Invoice->getBalance(),
+        "Deposit"=>$Invoice->getDeposit(),
+        "AllowIPNPayment"=>$Invoice->getAllowIPNPayment(),
+        "AllowOnlinePayment"=>$Invoice->getAllowOnlinePayment(),
+        "AllowOnlineCreditCardPayment"=>$Invoice->getAllowOnlineCreditCardPayment(),
+        "AllowOnlineACHPayment"=>$Invoice->getAllowAllowOnlineACHPayment(),
+        "PhoneNo"=>$phone
+        ));
         
         
             $num_lines = $Invoice->countLine(); 		// How many line items are there?
@@ -172,23 +200,28 @@ foreach ($invoices as $Invoice) {
                 $Line = $Invoice->getLine($i);
                 if ($Line->getDetailType() == 'SalesItemLineDetail')
                 {
-                        // echo "<br><br>Product Line ".$Invoice->getLine($i)->getLineNum().":"; echo "<br>- ";
                          $Detail = $Line->getSalesItemLineDetail();
                         $item_id = $Detail->getItemRef();
-//                        print('Item id is: ' . $item_id . "\n");
                         $items = $ItemService->query($Context, $realm, "SELECT * FROM Item WHERE Id = '" . QuickBooks_IPP_IDS::usableIDType($item_id) . "' ");
-//                        print('   That item is named: ' . $items[0]->getName() . "\n");
-//                         echo "<br>-  ".$Invoice->getLine($i)->getDescription();
-                        $objInvoiceList->InsertInvoiceList(array(
-                            "DocNumber"=>$Invoice->getDocNumber(),
-                             "LineNum"=>$Invoice->getLine($i)->getLineNum(),
-                             "ItemRef_name"=>$items[0]->getName(),
-                             "Description"=>$Invoice->getLine($i)->getDescription()
-                                ));
+                      
+                        $local_list_already_exist= $objInvoiceList->GetAllInvoicesList("DocNumber = ".$Invoice->getDocNumber() ." and LineNum = ".$Invoice->getLine($i)->getLineNum() ,array("*"));
+                        
+                        if($local_list_already_exist) {}
+                        else
+                            {
+                            $objInvoiceList->InsertInvoiceList(array(
+                                "DocNumber"=>$Invoice->getDocNumber(),
+                                 "LineNum"=>$Invoice->getLine($i)->getLineNum(),
+                                 "ItemRef_name"=>$items[0]->getName(),
+                                 "Description"=>$Invoice->getLine($i)->getDescription()
+                                    ));    
+                            }
+
                 }
             }
-        
-    //exit;
+                    echo $Invoice->getDocNumber()."Added to Local Database<br>";
+        }   
+  //  exit;
    ?>
 <script>
     $(function() {

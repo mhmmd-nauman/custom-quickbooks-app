@@ -1,6 +1,9 @@
-<?php require_once dirname(__FILE__) . '/config.php'; 
+<?php 
+error_reporting(0);
+require_once dirname(__FILE__) . '/config.php';
 require_once dirname(__FILE__) . '/lib/include.php';
 $objInvoice = new Invoice();
+$objInvoiceList = new InvoicesList();
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
 $garment_supplier_array=array(
                                 "Sanmar"=>"mindir@sanmarcanada.com",
@@ -14,9 +17,9 @@ $print_supplier_array=array(
 //$CustomerService = new QuickBooks_IPP_Service_Customer();
 ?> 
 
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="js/bootstrap.min.css">
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script src="js/tinymce/tinymce.min.js"></script>
 <?php         
 if(isset($_REQUEST['send']))
@@ -56,12 +59,12 @@ $invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['follow'],array("
     </div>
     <div class="form-group">
         <label for="pwd">To:</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $invoices[0]['BillEmail']; ?>"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php if(isset($invoices[0]['BillEmail'])) echo $invoices[0]['BillEmail']; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
         <textarea id="message" class="form-control" name="message" placeholder="Message.......">
-            Hello <?php echo $invoices[0]['CustomerRef_name']."<br>"; ?>             
+            Hello <?php if(isset($invoices[0]['CustomerRef_name']))  echo $invoices[0]['CustomerRef_name']."<br>"; ?>             
             <br><br>We hope you loved the custom printed clothing items we provided! If you have any issues with the products, please let us know and we will do our best to resolve any issues. 
             <br><br>If you have time to, please leave us a review on Google Plus. It helps build our online reputation and provides us with valuable feedback so we can better ourselves the next time.
             <br><br>Thank you and have a great day!
@@ -81,24 +84,40 @@ $invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['follow'],array("
 if(isset($_REQUEST['bg']))
 {
     $invoices = $objInvoice->GetAllInvoices("DocNumber=".$_REQUEST['bg'],array("*"));   
+    $invoiceslist = $objInvoiceList->GetAllInvoiceslist("DocNumber=".$_REQUEST['bg'],array("*"));   
 ?>   
 <div class="container">
   <form role="form">
     <div class="form-group">
         <label for="email">Subject:</label>
-        <input type="text" id="subject" name="subject" class="form-control" placeholder="Subject" value="PO#<?php echo $_REQUEST['bg'];?>."/>
+        <input type="text" id="subject" name="subject" class="form-control" placeholder="Subject" value="PO#<?php echo $_REQUEST['bg']; ?>." />
     </div>
     <div class="form-group">
         <label for="pwd">Recipient :</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $garment_supplier_array[$invoices[0]['blank_garment_supplier']]; ?>"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php if(isset($invoices[0]['blank_garment_supplier'])) echo $garment_supplier_array[$invoices[0]['blank_garment_supplier']]; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
         <textarea id="message" class="form-control" name="message" placeholder="Message.......">
-            Please have the following items shipped over to <?php echo $invoices[0]['PrintSupplier2']."[";   echo $print_supplier_array[$invoices[0]['PrintSupplier2']]."]"; ?>. 
+            Please have the following items shipped over to 
+            <?php 
+            if(isset($invoices[0]['PrintSupplier2'])) 
+            {
+                echo $invoices[0]['PrintSupplier2']."[";   
+                echo $print_supplier_array[$invoices[0]['PrintSupplier2']]."]";
+            }?>. 
                 <br><br>
-               
-            <br><br> Thanks
+                <?php 
+                   //var_dump($invoiceslist);
+                    foreach ($invoiceslist as $Invoice)  
+                    {
+                        echo "<br><br>Product Line ".$Invoice['LineNum'].":"; 
+                        echo "<br>-  ".$Invoice['ItemRef_name'];
+                        echo "<br>-  ".$Invoice['Description'];
+                     
+                    }
+                ?>
+            <br><br>  Thanks
             <br><br> Boaz Chan
         </textarea>
     </div>
@@ -123,7 +142,7 @@ if(isset($_REQUEST['printing']))
     </div>
     <div class="form-group">
         <label for="pwd">To:</label>
-        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php echo $print_supplier_array[$invoices[0]['PrintSupplier2']]; ?>"/>
+        <input type="text" id="to" name="to" placeholder="To" class="form-control" value="<?php if(isset($invoices[0]['PrintSupplier2'])) echo $print_supplier_array[$invoices[0]['PrintSupplier2']]; ?>"/>
     </div>
     <div class="form-group">
         <label for="pwd">Message:</label>
