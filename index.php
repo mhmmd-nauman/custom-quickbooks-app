@@ -35,9 +35,9 @@ $objInvoice = new Invoice();
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <script src="//code.jquery.com/jquery-1.10.2.js"></script>
         <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-    
+        
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    
+        <!--
         <link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css"></style>
         <script type="text/javascript" src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
         <script>
@@ -45,6 +45,7 @@ $objInvoice = new Invoice();
             $('#myTable').dataTable();
         });
         </script>
+        -->
         <script type="text/javascript">
     function displayRow(str){
         var row = document.getElementById(str);
@@ -109,6 +110,9 @@ $print_supplier_array=array("SuperGraphics","Double L","Top Notch","True Screen"
 $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL REIGN REPRESENTATIVE");
 $garment_supplier_array=array("Sanmar","Technosport");
 $sr = 0;
+//echo "<pre>";
+//print_r($invoices);
+//echo "</pre>";
 if($invoices)
 foreach ($invoices as $Invoice) {
    $sr++;
@@ -146,7 +150,7 @@ foreach ($invoices as $Invoice) {
         <?php 
         $ship_date=$Invoice['ShipDate'];
         $ship_date_value="";
-        if($ship_date!="0000-00-00"){
+        if($ship_date!="0000-00-00" && $ship_date!="1970-01-01"){
             $ship_date_value = date("m/d/Y",  strtotime($ship_date));
             //$ship_date_value = "";
         }?>
@@ -207,8 +211,7 @@ foreach ($invoices as $Invoice) {
         </select>
     </td>
     <td> <?php //echo $Invoice['Number']; ?>
-        <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tracking_no" type="text" name="tracking_no" id="tracking_no<?php echo $invoice_id;?>" value="<?php echo $Invoice['tracking_no'];?>">
-        /
+        <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tracking_no" type="text" name="tracking_no" id="tracking_no<?php echo $invoice_id;?>"  disabled="" value="<?php echo $invoice_id;?>">
         <input onchange ="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);" class="small-date-box tract_date" type="text" name="tract_date" id="tract_date<?php echo $invoice_id;?>" value="<?php echo date("m/d/Y",  strtotime($Invoice['TxnDate']));?>"></td>
     <td> 
         <button onclick="UpdateInvoiceData('<?php echo $invoice_id;?>',this.name,this.value);displayRow('<?php echo $invoice_id;?>');" type = "button" name="hide_button" id="hide_button" class = "btn btn-success btn-sm">Hide</button>
