@@ -218,6 +218,7 @@ foreach ($invoices as $Invoice) {
   </div>
 </div>
 <?php }else{ ?>
+<?php    include 'lib/nav.php';?>
 <div class="row">
   <div class="col-md-12">
       <br>

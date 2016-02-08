@@ -2,14 +2,16 @@
 require_once dirname(__FILE__) . '/config.php';
 require_once dirname(__FILE__) . '/lib/include.php';
 $objInvoice = new Invoice();
+if ($quickbooks_is_connected){
 ?>
+
 <html>
     <head>
         <meta charset = "utf-8">
         <meta http-equiv = "X-UA-Compatible" content = "IE = edge">
         <meta name = "viewport" content = "width = device-width, initial-scale = 1">
 
-        <title>Quickbooks Custom Application</title>
+        <title>Coastalreign.Com</title>
 
         <!-- Bootstrap -->
         <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"  rel = "stylesheet">
@@ -56,6 +58,18 @@ $objInvoice = new Invoice();
 <body>
 <div class="container-fluid">
     <?php    include 'lib/nav.php';?>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-7 alert alert-info" >
+            <?php print($quickbooks_CompanyInfo->getCompanyName()); ?><br>
+            <?php print($quickbooks_CompanyInfo->getEmail()->getAddress()); ?>
+            <?php print($quickbooks_CompanyInfo->getCountry()); ?>
+            </div>
+        </div>
+        <div class="col-md-3 pull-right">
+            <a  title="DISCONNECT" class="btn btn-success btn-large"  href=" disconnect.php">DISCONNECT</a> 
+        </div>
+      </div>
     <div class="row">
         <div class="col-md-12">
             <h1>Invoice Details</h1>
@@ -113,8 +127,8 @@ $sr = 0;
 //echo "<pre>";
 //print_r($invoices);
 //echo "</pre>";
-if($invoices)
-foreach ($invoices as $Invoice) {
+if($invoices){
+    foreach ($invoices as $Invoice) {
    $sr++;
    $invoice_id = $Invoice['Id'];
    $invoice_id = str_replace("-", "", $invoice_id);
@@ -224,7 +238,17 @@ foreach ($invoices as $Invoice) {
    <td><b id="ajax_wait<?php echo $invoice_id;?>" align="center" style=" display:none;"><h2>Please Wait...</h2></b>
     </td>
   </tr>
-<?php } ?>  
+<?php } 
+}else{?>
+  <tr>
+      <td style="text-align:center;" colspan="15" >
+          <div class="alert alert-info">
+          No Invoices Please go to Settings Page to Copy Invoices<br>
+          <a class="btn btn-success" href = "cron_job.php">Settings</a>
+          </div>
+      </td>
+  </tr>
+<?php }?>  
                 </tbody>
             </table>  
         </div>
@@ -294,3 +318,75 @@ if(answer){
 </script>
 </body>
 </html>
+<?php } else {?>
+<html>
+<head>
+      <meta charset = "utf-8">
+      <meta http-equiv = "X-UA-Compatible" content = "IE = edge">
+      <meta name = "viewport" content = "width = device-width, 
+         initial-scale = 1">
+      
+      <title>Quickbooks Custom Application</title>
+      <script type="text/javascript" src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js"></script>
+       <script type="text/javascript">
+        intuit.ipp.anywhere.setup({
+                menuProxy: '<?php print($quickbooks_menu_url); ?>',
+                grantUrl: '<?php print($quickbooks_oauth_url); ?>'
+        });
+        </script>
+      <!-- Bootstrap -->
+      <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" 
+         rel = "stylesheet">
+<!--<link rel="stylesheet" href="css/popup.css" />-->
+      
+      <!-- HTML5 shim and Respond.js for IE8 support of HTML5 
+         elements and media queries -->
+      <!-- WARNING: Respond.js doesn't work if you view the 
+         page via file:// -->
+      
+      <!--[if lt IE 9]>
+      <script src = "https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src = "https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+      <style type="text/css">
+          .big-drop-down{ width: 120px;}
+          .small-drop-down{ width: 80px;}
+          .small-date-box{ width: 60px;}
+          .mid-text-box{width: 120px;}
+      </style>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script>
+    $(function() {
+      $( ".tract_date" ).datepicker();
+    });
+    </script>
+   </head>
+<body>
+<?php    include 'lib/nav.php';?>
+<div class="row">
+  <div class="col-md-12">
+      <br>
+  </div>
+</div>
+<div class="row">
+    <div class="col-md-12" style="border: 2px solid red; text-align: center; padding: 8px; color: red;">
+        <b>NOT</b> CONNECTED!<br>
+        <br>
+        <ipp:connectToIntuit></ipp:connectToIntuit>
+        <br>
+        <br>
+        You must authenticate to QuickBooks <b>once</b> before you can exchange data with it. <br>
+        <br>
+        <strong>You only have to do this once!</strong> <br><br>
+
+        After you've authenticated once, you never have to go 
+        through this connection process again. <br>
+        Click the button above to 
+        authenticate and connect.
+    </div>
+</div>
+</body>
+</html>
+<?php } ?>

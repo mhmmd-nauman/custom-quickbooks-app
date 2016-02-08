@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/config.php';
 require_once dirname(__FILE__) . '/lib/include.php';
+if ($quickbooks_is_connected){
 $objInvoice = new Invoice();
 $objInvoiceList = new InvoicesList();
 $InvoiceService = new QuickBooks_IPP_Service_Invoice();
@@ -78,7 +79,7 @@ $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL 
                 if(isset($addr)) $email = $Invoice->getBillEmail(0)->getAddress();
                 else {
                      if(is_object($Customer[0])){
-                           $email=$Customer[0]->getPrimaryEmailAddr(0)->getAddress();
+                          // $email=$Customer[0]->getPrimaryEmailAddr(0)->getAddress();
 
                     }
                 }
@@ -97,7 +98,7 @@ $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL 
                 }   
                 $check=$Invoice->getTotalAmt(0);
                     if($check) $total=$Invoice->getTotalAmt();
-                    if(is_object($Customer[0])){ $phone= $customers->getPrimaryPhone(0)->getFreeFormNumber(); }
+                    //if(is_object($Customer[0])){ $phone= $customers->getPrimaryPhone(0)->getFreeFormNumber(); }
          
                     
                 if(isset($_REQUEST['deleteinvoice'])){
@@ -226,3 +227,75 @@ $shipement_method_array=array("Print","UPS","CANADA POST","SPOTSHUB","A COASTAL 
     }
 }
 </script>
+<?php } else{?>
+<html>
+<head>
+      <meta charset = "utf-8">
+      <meta http-equiv = "X-UA-Compatible" content = "IE = edge">
+      <meta name = "viewport" content = "width = device-width, 
+         initial-scale = 1">
+      
+      <title>Quickbooks Custom Application</title>
+      <script type="text/javascript" src="https://appcenter.intuit.com/Content/IA/intuit.ipp.anywhere.js"></script>
+       <script type="text/javascript">
+        intuit.ipp.anywhere.setup({
+                menuProxy: '<?php print($quickbooks_menu_url); ?>',
+                grantUrl: '<?php print($quickbooks_oauth_url); ?>'
+        });
+        </script>
+      <!-- Bootstrap -->
+      <link href = "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" 
+         rel = "stylesheet">
+<!--<link rel="stylesheet" href="css/popup.css" />-->
+      
+      <!-- HTML5 shim and Respond.js for IE8 support of HTML5 
+         elements and media queries -->
+      <!-- WARNING: Respond.js doesn't work if you view the 
+         page via file:// -->
+      
+      <!--[if lt IE 9]>
+      <script src = "https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src = "https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+      <style type="text/css">
+          .big-drop-down{ width: 120px;}
+          .small-drop-down{ width: 80px;}
+          .small-date-box{ width: 60px;}
+          .mid-text-box{width: 120px;}
+      </style>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script>
+    $(function() {
+      $( ".tract_date" ).datepicker();
+    });
+    </script>
+   </head>
+<body>
+<?php    include 'lib/nav.php';?>
+<div class="row">
+  <div class="col-md-12">
+      <br>
+  </div>
+</div>
+<div class="row">
+    <div class="col-md-12" style="border: 2px solid red; text-align: center; padding: 8px; color: red;">
+        <b>NOT</b> CONNECTED!<br>
+        <br>
+        <ipp:connectToIntuit></ipp:connectToIntuit>
+        <br>
+        <br>
+        You must authenticate to QuickBooks <b>once</b> before you can exchange data with it. <br>
+        <br>
+        <strong>You only have to do this once!</strong> <br><br>
+
+        After you've authenticated once, you never have to go 
+        through this connection process again. <br>
+        Click the button above to 
+        authenticate and connect.
+    </div>
+</div>
+</body>
+</html>
+<?php } ?>
