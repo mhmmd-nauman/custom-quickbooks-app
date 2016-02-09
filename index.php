@@ -59,6 +59,7 @@ if ($quickbooks_is_connected){
 <div class="container-fluid">
     <?php    include 'lib/nav.php';?>
     <div class="row">
+        <?php if(is_object($quickbooks_CompanyInfo)){ ?>
         <div class="col-md-12">
             <div class="col-md-7 alert alert-info" >
             <?php print($quickbooks_CompanyInfo->getCompanyName()); ?><br>
@@ -66,6 +67,7 @@ if ($quickbooks_is_connected){
             <?php print($quickbooks_CompanyInfo->getCountry()); ?>
             </div>
         </div>
+        <?php }?>
         <div class="col-md-3 pull-right">
             <a  title="DISCONNECT" class="btn btn-success btn-large"  href=" disconnect.php">DISCONNECT</a> 
         </div>
